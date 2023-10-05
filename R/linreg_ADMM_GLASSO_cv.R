@@ -53,6 +53,7 @@
 #' \item{min.mse}{minimum value of the cross-validated MSE for the sequence of lambdas.}
 #' \item{mse.sd}{standard deviation of the cross-validated mean squared error.}
 #' \item{elapsedTime}{elapsed time in seconds for the whole procedure.}
+#' \item{foldid}{a vector of values between 1 and cv.fold identifying what fold each observation is in.}
 #' }
 #'
 #' Iteration stops when both \code{r_norm} and \code{s_norm} values
@@ -478,7 +479,8 @@ linreg_ADMM_GLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NULL, 
                  "convergence",
                  "elapsedTime",
                  "iternum",
-                 "indi.min.mse") 
+                 "indi.min.mse",
+                 "foldid") 
   res        <- vector(mode = "list", length = length(res.names))
   names(res) <- res.names
   
@@ -498,6 +500,7 @@ linreg_ADMM_GLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NULL, 
   ret$elapsedTime  <- eltime
   ret$iternum      <- nIterN
   ret$indi.min.mse <- indi.min.mse
+  ret$foldid       <- ret.gr$foldid
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output

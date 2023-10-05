@@ -1,7 +1,7 @@
 Package: fdaSP
 Type: Package
 Title: Sparse Functional Data Analysis Methods
-Version: 1.0
+Version: 1.1.1
 Date: 2023-09-12
 Author: Mauro Bernardi [aut, cre],
   Marco Stefanucci [aut],
@@ -21,6 +21,6 @@ Encoding: UTF-8
 RoxygenNote: 7.2.3.9000
 RdMacros: Rdpack
 NeedsCompilation: yes
-Packaged: 2023-09-15 06:37:01 UTC; maurobernardi
+Packaged: 2023-10-05 13:43:15 UTC; maurobernardi
 Repository: CRAN
-Date/Publication: 2023-09-15 19:32:06 UTC
+Date/Publication: 2023-10-05 18:00:02 UTC

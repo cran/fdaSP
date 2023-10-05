@@ -266,11 +266,19 @@ groups.cv <- function(n, k = 10) {
     groups.cv[[it]] <- setdiff(groups.all, groups[[it]])
   }
   
+  # define foldid
+  foldid <- rep(0, n)
+  for (i in 1:k) {
+    idx         <- groups[[i]]
+    foldid[idx] <- i
+  }
+  
   # get output
   ret             <- NULL
   ret$groups.pred <- groups
   ret$groups.cv   <- groups.cv
   ret$shuffle     <- groups.all
+  ret$foldid      <- foldid
   
   # return output
   return(ret)

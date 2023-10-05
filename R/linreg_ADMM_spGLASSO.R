@@ -386,13 +386,15 @@ linreg_ADMM_spGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, v
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Get the path and retrieve the scaled estimates
   if (standardize.data == TRUE) {
-    if (alpha == 0) {
-      dim_ <- sum(nG)
-    } else if (alpha == 1) {
-      dim_ <- p
-    } else {
-      dim_ <- sum(nG) + p
-    }
+    # if (alpha == 0) {
+    #   dim_ <- sum(nG)
+    # } else if (alpha == 1) {
+    #   dim_ <- p
+    # } else {
+    #   # dim_ <- sum(nG) + p
+    #   dim_ <- p
+    # }
+    dim_    <- p
     sp.path <- matrix(nlambda, dim_, data = t(apply(mSpRegP, 2, function(x) solve(mU) %*% x %*% mV)))
     vSpRegP <- solve(mU) %*% vSpRegP %*% mV
     if (!is.null(Z)) {

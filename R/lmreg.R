@@ -312,6 +312,7 @@ lmSP <- function(X, Z = NULL, y, penalty = c("LASSO", "GLASSO", "spGLASSO", "OVG
 #' \item{convergence}{logical. 1 denotes achieved convergence.}
 #' \item{elapsedTime}{elapsed time in seconds.}
 #' \item{iternum}{number of iterations.}
+#' \item{foldid}{a vector of values between 1 and cv.fold identifying what fold each observation is in.}
 #' }
 #'
 #' When you run the algorithm, output returns not only the solution, but also the iteration history recording
@@ -484,7 +485,7 @@ lmSP_cv <- function(X, Z = NULL, y, penalty = c("LASSO", "GLASSO", "spGLASSO", "
     
   # :::::::::::::::::::::::::::::::::::::::::::::::::::::
   # check the penalty input
-  if (!strcmpi(penalty, "LASSO") && !strcmpi(penalty, "GLASSO") && !strcmpi(penalty, "spGLASSO") && !strcmpi(penalty, "OVGLASSO")) {
+  if (!strcmpi(penalty, "LASSO") && !strcmpi(penalty, "GLASSO") && !strcmpi(penalty, "spGLASSO") && !strcmpi(penalty, "OVGLASSO") && !strcmpi(penalty, "spOVGLASSO")) {
     stop("* lmSP : input 'penalty' must be correctly specified: 'LASSO', 'GLASSO', 'spGLASSO', 'OVGLASSO', 'spOVGLASSO'.") 
   }
   

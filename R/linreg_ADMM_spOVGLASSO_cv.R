@@ -64,6 +64,7 @@
 #' \item{min.mse}{minimum value of the cross-validated MSE for the sequence of lambdas.}
 #' \item{mse.sd}{standard deviation of the cross-validated mean squared error.}
 #' \item{elapsedTime}{elapsed time in seconds for the whole procedure.}
+#' \item{foldid}{a vector of values between 1 and cv.fold identifying what fold each observation is in.}
 #' }
 #'
 #' Iteration stops when both \code{r_norm} and \code{s_norm} values
@@ -344,16 +345,24 @@ linreg_ADMM_spOVGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NU
   if (!is.null(nlambda) && is.null(lambda)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z,
-                                    groups = groups, group_weights = group_weights, var_weights = var_weights, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = nlambda, alpha = alpha)$lambda.seq
+    # lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z,
+    #                                 groups = groups, group_weights = group_weights, var_weights = var_weights, 
+    #                                 lambda.min.ratio = lambda.min.ratio, maxl = nlambda, alpha = alpha)$lambda.seq
+    
+    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, Z = Z, 
+                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                    lambda.min.ratio = lambda.min.ratio, maxl = nlambda)$lambda.seq
   }
   if (is.null(nlambda) && is.null(lambda)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z,
-                                    groups = groups, group_weights = group_weights, var_weights = var_weights, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = 30, alpha = alpha)$lambda.seq
+    # lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z,
+    #                                 groups = groups, group_weights = group_weights, var_weights = var_weights, 
+    #                                 lambda.min.ratio = lambda.min.ratio, maxl = 30, alpha = alpha)$lambda.seq
+    
+    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, Z = Z, 
+                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                    lambda.min.ratio = lambda.min.ratio, maxl = 30)$lambda.seq
   }
   if (!is.null(lambda)) {
     nlambda <- length(lambda)
@@ -515,25 +524,29 @@ linreg_ADMM_spOVGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NU
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Retrieve estimated parameters
   if (standardize.data == TRUE) {
-    if (alpha == 0) {
-      dim_ <- sum(nG)
-    } else if (alpha == 1) {
-      dim_ <- p
-    } else {
-      dim_ <- sum(nG) + p
-    }
+    # if (alpha == 0) {
+    #   dim_ <- sum(nG)
+    # } else if (alpha == 1) {
+    #   dim_ <- p
+    # } else {
+    #   # dim_ <- sum(nG) + p
+    #   dim_ <- p
+    # }
+    dim_     <- p
     vSpRegP_ <- matrix(solve(mU) %*% vRegP %*% mV, nrow = dim_, ncol = 1)
     if (!is.null(Z)) {
       vRegP <- vRegP %*% mV
     }
   } else {
-    if (alpha == 0) {
-      dim_ <- sum(nG)
-    } else if (alpha == 1) {
-      dim_ <- p
-    } else {
-      dim_ <- sum(nG) + p
-    }
+    # if (alpha == 0) {
+    #   dim_ <- sum(nG)
+    # } else if (alpha == 1) {
+    #   dim_ <- p
+    # } else {
+    #   # dim_ <- sum(nG) + p
+    #   dim_ <- p
+    # }
+    dim_     <- p
     vSpRegP_ <- matrix(vSpRegP, nrow = dim_, ncol = 1)
   }
   
@@ -560,7 +573,8 @@ linreg_ADMM_spOVGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NU
                  "convergence",
                  "elapsedTime",
                  "iternum",
-                 "indi.min.mse") 
+                 "indi.min.mse",
+                 "foldid") 
   res        <- vector(mode = "list", length = length(res.names))
   names(res) <- res.names
   
@@ -580,6 +594,7 @@ linreg_ADMM_spOVGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NU
   ret$elapsedTime  <- eltime
   ret$iternum      <- nIterN
   ret$indi.min.mse <- indi.min.mse
+  ret$foldid       <- ret.gr$foldid
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output

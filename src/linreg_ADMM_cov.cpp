@@ -3442,7 +3442,7 @@ Rcpp::List admm_spglasso_cov_large_m_fast(arma::mat& W, arma::mat& Z, arma::vec&
     z = as<arma::colvec>(out["z"]);
     x = as<arma::colvec>(out["x"]);
     v = as<arma::colvec>(out["v"]);
-
+    
     /* Store output      */
     niter(j)         = out["niter"];
     eltime(j)        = out["eltime"];

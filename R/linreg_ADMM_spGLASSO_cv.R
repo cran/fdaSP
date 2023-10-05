@@ -63,6 +63,7 @@
 #' \item{min.mse}{minimum value of the cross-validated MSE for the sequence of lambdas.}
 #' \item{mse.sd}{standard deviation of the cross-validated mean squared error.}
 #' \item{elapsedTime}{elapsed time in seconds for the whole procedure.}
+#' \item{foldid}{a vector of values between 1 and cv.fold identifying what fold each observation is in.}
 #' }
 #'
 #' Iteration stops when both \code{r_norm} and \code{s_norm} values
@@ -498,25 +499,29 @@ linreg_ADMM_spGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NULL
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Retrieve estimated parameters
   if (standardize.data == TRUE) {
-    if (alpha == 0) {
-      dim_ <- sum(nG)
-    } else if (alpha == 1) {
-      dim_ <- p
-    } else {
-      dim_ <- sum(nG) + p
-    }
+    # if (alpha == 0) {
+    #   dim_ <- sum(nG)
+    # } else if (alpha == 1) {
+    #   dim_ <- p
+    # } else {
+    #   # dim_ <- sum(nG) + p
+    #   dim_ <- p
+    # }
+    dim_     <- p
     vSpRegP_ <- matrix(solve(mU) %*% vRegP %*% mV, nrow = dim_, ncol = 1)
     if (!is.null(Z)) {
       vRegP <- vRegP %*% mV
     }
   } else {
-    if (alpha == 0) {
-      dim_ <- sum(nG)
-    } else if (alpha == 1) {
-      dim_ <- p
-    } else {
-      dim_ <- sum(nG) + p
-    }
+    # if (alpha == 0) {
+    #   dim_ <- sum(nG)
+    # } else if (alpha == 1) {
+    #   dim_ <- p
+    # } else {
+    #   # dim_ <- sum(nG) + p
+    #   dim_ <- p
+    # }
+    dim_     <- p
     vSpRegP_ <- matrix(vSpRegP, nrow = dim_, ncol = 1)
   }
   
@@ -543,7 +548,8 @@ linreg_ADMM_spGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NULL
                  "convergence",
                  "elapsedTime",
                  "iternum",
-                 "indi.min.mse") 
+                 "indi.min.mse",
+                 "foldid") 
   res        <- vector(mode = "list", length = length(res.names))
   names(res) <- res.names
   
@@ -563,6 +569,7 @@ linreg_ADMM_spGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NULL
   ret$elapsedTime  <- eltime
   ret$iternum      <- nIterN
   ret$indi.min.mse <- indi.min.mse
+  ret$foldid       <- ret.gr$foldid
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output

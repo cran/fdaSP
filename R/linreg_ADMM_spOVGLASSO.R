@@ -349,16 +349,24 @@ linreg_ADMM_spOVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL,
   if (!is.null(nlambda) && is.null(lambda)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z, 
-                                    groups = groups, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = nlambda, alpha = alpha)$lambda.seq
+    # lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z, 
+    #                                 groups = groups, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1, 
+    #                                 lambda.min.ratio = lambda.min.ratio, maxl = nlambda, alpha = alpha)$lambda.seq
+    
+    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, Z = Z, 
+                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                    lambda.min.ratio = lambda.min.ratio, maxl = nlambda)$lambda.seq
   }
   if (is.null(nlambda) && is.null(lambda)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z, 
-                                    groups = groups, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = 30, alpha = alpha)$lambda.seq
+    # lambda <- lm_lambdamax_spGLASSO(y = y.std, X = X.std, Z = Z, 
+    #                                 groups = groups, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1, 
+    #                                 lambda.min.ratio = lambda.min.ratio, maxl = 30, alpha = alpha)$lambda.seq
+    
+    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, Z = Z, 
+                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                    lambda.min.ratio = lambda.min.ratio, maxl = 30)$lambda.seq
   }
   if (!is.null(lambda)) {
     nlambda <- length(lambda)
@@ -403,13 +411,15 @@ linreg_ADMM_spOVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL,
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Get the path and retrieve the scaled estimates
   if (standardize.data == TRUE) {
-    if (alpha == 0) {
-      dim_ <- sum(nG)
-    } else if (alpha == 1) {
-      dim_ <- p
-    } else {
-      dim_ <- sum(nG) + p
-    }
+    # if (alpha == 0) {
+    #   dim_ <- sum(nG)
+    # } else if (alpha == 1) {
+    #   dim_ <- p
+    # } else {
+    #   # dim_ <- sum(nG) + p
+    #   dim_ <- p
+    # }
+    dim_    <- p
     sp.path <- matrix(nlambda, dim_, data = t(apply(mSpRegP, 2, function(x) solve(mU) %*% x %*% mV)))
     vSpRegP <- solve(mU) %*% vSpRegP %*% mV
     if (!is.null(Z)) {
@@ -418,7 +428,7 @@ linreg_ADMM_spOVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL,
     }
   } else {
     vSpRegP <- matrix(vSpRegP, length(vSpRegP), 1)
-    sp.path  <- t(mSpRegP)
+    sp.path <- t(mSpRegP)
     if (!is.null(Z)) {
       path <- t(mRegP)
     }
