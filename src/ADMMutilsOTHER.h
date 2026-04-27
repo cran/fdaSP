@@ -18,83 +18,100 @@ using std::log;
 using namespace Rcpp;
 using namespace arma;
 
-// gaussian random simulation
-arma::vec rnormC(int size, double mean, double sd);
-arma::vec vecC(arma::mat X);
-arma::mat invvecC(arma::vec x, const int nrow);
+// ============================================================
+// admm_tv
+arma::colvec tv_shrinkage(const arma::colvec& a,
+                          const double kappa);
+double tv_objective(const arma::colvec& b,
+                    const double& lambda,
+                    const arma::mat& D,
+                    const arma::colvec& x,
+                    const arma::colvec& z);
 
-// admm_tv ============================================================
-arma::colvec tv_shrinkage(arma::colvec a, const double kappa);
+/*  Total Variation Minimization via ADMM    */
+Rcpp::List admm_tv(const arma::colvec& b,
+                   const arma::colvec& xinit,
+                   const double lambda,
+                   const double reltol, 
+                   const double abstol,
+                   const int maxiter,
+                   const double rho, 
+                   const double alpha);
 
-double tv_objective(arma::colvec b, const double lambda, arma::mat D,
-                    arma::colvec x, arma::colvec z);
-/*
-* Total Variation Minimization via ADMM (from Stanford)
-* http://stanford.edu/~boyd/papers/pdf/admm_distr_stats.pdf
-* page 19 : section 3.3.1 : stopping criteria part (3.12).
-*/
-Rcpp::List admm_tv(const arma::colvec& b, arma::colvec& xinit, const double lambda,
-                   const double reltol, const double abstol, const int maxiter,
-                   const double rho, const double alpha);
+// ============================================================
+// admm_bp
+arma::colvec bp_shrinkage(const arma::colvec& a,
+                          const double kappa);
 
+/*  Basis Pursuit via ADMM      */
+Rcpp::List admm_bp(const arma::mat& A,
+                   const arma::colvec& b,
+                   const arma::colvec& xinit,
+                   const double reltol,
+                   const double abstol, 
+                   const int maxiter,
+                   const double rho, 
+                   const double alpha);
 
-// admm_bp ============================================================
-arma::colvec bp_shrinkage(arma::colvec a, const double kappa);
+// ===========================================================
+// admm_lad
+arma::colvec lad_shrinkage(const arma::colvec& a,
+                           const double kappa);
 
-/*
-* Basis Pursuit via ADMM (from Stanford)
-* URL : https://web.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
-* http://stanford.edu/~boyd/papers/pdf/admm_distr_stats.pdf
-* page 19 : section 3.3.1 : stopping criteria part (3.12).
-*/
-Rcpp::List admm_bp(const arma::mat& A, const arma::colvec& b, arma::colvec& xinit,
-                   const double reltol, const double abstol, const int maxiter,
-                   const double rho, const double alpha);
+/*    LAD via ADMM          */
+Rcpp::List admm_lad(const arma::mat& A,
+                    const arma::colvec& b,
+                    const arma::colvec& xinit,
+                    const double reltol,
+                    const double abstol,
+                    const int maxiter,
+                    const double rho, 
+                    const double alpha);
 
-// admm_lad ===========================================================
-arma::colvec lad_shrinkage(arma::colvec a, const double kappa);
+// ===========================================================
+// admm_rpca
+arma::vec shrink_vec_rpca(const arma::vec& x, 
+                          const double tau);
+arma::mat shrink_mat_rpca(const arma::mat& A,
+                          const double tau);
+arma::mat rpca_vectorpadding(const arma::vec& x,
+                             const int n,
+                             const int p);
+Rcpp::List admm_rpca(const arma::mat& M, 
+                     const double tol,
+                     const int maxiter,
+                     const double mu,
+                     const double lambda);
 
-/*
-* LAD via ADMM (from Stanford)
-* http://stanford.edu/~boyd/papers/pdf/admm_distr_stats.pdf
-* page 19 : section 3.3.1 : stopping criteria part (3.12).
-*/
-Rcpp::List admm_lad(const arma::mat& A, const arma::colvec& b, arma::colvec& xinit,
-                    const double reltol, const double abstol, const int maxiter,
-                    const double rho, const double alpha);
+// ===========================================================
+// admm_spca
+arma::vec spca_gamma(const arma::vec& sigma,
+                     const double r);
+arma::mat spca_shrinkage(const arma::mat& A,
+                         const double tau);
+Rcpp::List admm_spca(const arma::mat& Sigma, 
+                     const double reltol,
+                     const double abstol,
+                     const int maxiter, 
+                     const double mu,
+                     const double rho);
 
-// admm_rpca ==========================================================
-arma::vec shrink_vec_rpca(arma::vec x, double tau);
-
-arma::mat shrink_mat_rpca(arma::mat A, const double tau);
-
-arma::mat rpca_vectorpadding(arma::vec x, const int n, const int p);
-
-Rcpp::List admm_rpca(const arma::mat& M, const double tol, const int maxiter,
-                     double mu, double lambda);
-
-// admm_spca ==========================================================
-arma::vec spca_gamma(arma::vec sigma, double r);
-
-arma::mat spca_shrinkage(arma::mat A, const double tau);
-
-Rcpp::List admm_spca(const arma::mat& Sigma, const double reltol, const double abstol,
-                     const int maxiter, double mu, double rho);
-
-// admm_sdp ===========================================================
-arma::mat sdp_evdplus(arma::mat& X);
-
-double sdp_gap(arma::vec& b, arma::vec& y, arma::mat& C, arma::mat& X);
-
-Rcpp::List admm_sdp(arma::mat& C, arma::field<arma::mat>& listA, arma::vec b,
-                    double mymu, double myrho, double mygamma, int maxiter, double abstol, bool printer);
-
-
-
-
-
-
-
+// ===========================================================
+// admm_sdp
+arma::mat sdp_evdplus(const arma::mat& X);
+double sdp_gap(const arma::vec& b,
+               const arma::vec& y,
+               const arma::mat& C,
+               const arma::mat& X);
+Rcpp::List admm_sdp(const arma::mat& C,
+                    const arma::field<arma::mat>& listA,
+                    const arma::vec& b,
+                    const double mymu,
+                    const double myrho,
+                    const double mygamma,
+                    const int maxiter,
+                    const double abstol,
+                    const bool printer);
 
 
 

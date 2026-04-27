@@ -310,7 +310,11 @@ linreg_ADMM_LASSO_cv <- function(X, Z = NULL, y, var_weights = NULL, standardize
       mSpRegP_     <- ret$coef.path
       fit          <- X.std[ret.gr$groups.pred[[kt]],] %*% t(mSpRegP_)
     } else {
-      mZ_ <- Z[ret.gr$groups.cv[[kt]],]
+      if (dim(Z)[2] > 1) {
+        mZ_ <- Z[ret.gr$groups.cv[[kt]],]
+      } else {
+        mZ_ <- matrix(Z[ret.gr$groups.cv[[kt]],], nrow = length(ret.gr$groups.cv[[kt]]), ncol = 1)
+      }
       if (adalasso == FALSE) {
         ret <- .admm_lasso_cov_fast(W = mX_, Z = mZ_, y = vY_, lambda = lambda, rho_adaptation = adaptation, rho = rho,
                                     tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)

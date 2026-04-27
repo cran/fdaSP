@@ -11,9 +11,12 @@ f2sSP(
   M,
   group_weights = NULL,
   var_weights = NULL,
+  weights_adaptive = FALSE,
   standardize.data = TRUE,
   splOrd = 4,
+  diff_order = 1,
   lambda = NULL,
+  lambda2 = NULL,
   nlambda = 30,
   lambda.min.ratio = NULL,
   intercept = FALSE,
@@ -35,12 +38,22 @@ f2sSP(
 \item{var_weights}{a vector of length \eqn{M} containing basis-specific weights. The default is a vector where 
 each entry is the reciprocal of the number of groups including that basis. See Bernardi et al. (2022) for details.}
 
+\item{weights_adaptive}{logical. If \code{TRUE}, adaptive weights are computed from an initial 
+least squares estimate. This option is ignored (and set to \code{FALSE}) when 
+\code{group_weights} are provided by the user, since external weights override the adaptive scheme.}
+
 \item{standardize.data}{logical. Should data be standardized?}
 
 \item{splOrd}{the order \eqn{d} of the spline basis.}
 
-\item{lambda}{either a regularization parameter or a vector of regularization parameters. 
+\item{diff_order}{order of the discrete difference operator used in the smoothness penalty.
+The default is 1.}
+
+\item{lambda}{either a regularization parameter or a vector of regularization parameters.
 In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.}
+
+\item{lambda2}{either a non-negative smoothing regularization parameter or a vector of
+smoothing regularization parameters. If \code{NULL}, no smoothness penalty is used.}
 
 \item{nlambda}{the number of lambda values - default is 30.}
 
@@ -62,8 +75,14 @@ A named list containing \describe{
 It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.}
 \item{coef.path}{an \eqn{(n_\lambda\times q)} matrix of estimated \eqn{\gamma} coefficients for each lambda. 
 It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.}
-\item{lambda}{sequence of lambda.}
+\item{dof}{estimated degrees of freedom for each value of the regularization parameter.}
+\item{dof.groups_active}{active groups used in the degrees-of-freedom computation for each value of the regularization parameter.}
+\item{dof.coeff_active}{active coefficient indices used in the degrees-of-freedom computation for each value of the regularization parameter.}
+\item{dof.vars_active}{active basis coefficients used in the degrees-of-freedom computation for each value of the regularization parameter.}
+\item{bic}{Bayesian information criterion computed along the regularization path.}
 \item{lambda.min}{value of lambda that attains the minimum in-sample MSE.}
+\item{lambda}{sequence of lambda.}
+\item{lambda2}{sequence of smoothing regularization parameters. It is \code{NULL} when no smoothness penalty is used.}
 \item{mse}{in-sample mean squared error.}
 \item{min.mse}{minimum value of the in-sample MSE for the sequence of lambda.}
 \item{convergence}{logical. 1 denotes achieved convergence.}
@@ -102,6 +121,8 @@ for details on the ADMM method.
 \item{rho}{an augmented Lagrangian parameter. The default value is 1.}
 \item{tau.ada}{an adaptation parameter greater than one. Only needed if adaptation = TRUE. The default value is 2. See Boyd et al. (2011) and Lin et al. (2022) for details.}
 \item{mu.ada}{an adaptation parameter greater than one. Only needed if adaptation = TRUE. The default value is 10. See Boyd et al. (2011) and Lin et al. (2022) for details.}
+\item{dof.toler_c}{tolerance parameter used in the degrees-of-freedom computation to determine active constraints.}
+\item{dof.toler_d}{tolerance parameter used in the degrees-of-freedom computation to determine active coefficients or groups.}
 \item{abstol}{absolute tolerance stopping criterion. The default value is sqrt(sqrt(.Machine$double.eps)).}
 \item{reltol}{relative tolerance stopping criterion. The default value is sqrt(.Machine$double.eps).}
 \item{maxit}{maximum number of iterations. The default value is 100.}

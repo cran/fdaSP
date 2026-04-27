@@ -11,7 +11,8 @@
 
 // ============================================================
 // admm_tv: Total Variation Minimization via ADMM
-arma::colvec tv_shrinkage(arma::colvec a, const double kappa) {
+arma::colvec tv_shrinkage(const arma::colvec& a,
+                          const double kappa) {
   const int n = a.n_elem;
   arma::colvec y(n,fill::zeros);
   for (int i=0;i<n;i++){
@@ -27,47 +28,53 @@ arma::colvec tv_shrinkage(arma::colvec a, const double kappa) {
   return(y);
 }
 
-double tv_objective(arma::colvec b, const double lambda, arma::mat D,
-                    arma::colvec x, arma::colvec z) {
-  return(pow(norm(x-b),2)/2 + lambda*norm(z,1));
+double tv_objective(const arma::colvec& b,
+                    const double& lambda,
+                    const arma::mat& D,
+                    const arma::colvec& x,
+                    const arma::colvec& z) {
+  return(0.5 * pow(norm(x-b), 2) + lambda * norm(z, 1));
 }
 
-/*
-* Total Variation Minimization via ADMM (from Stanford)
-* http://stanford.edu/~boyd/papers/pdf/admm_distr_stats.pdf
-* page 19 : section 3.3.1 : stopping criteria part (3.12).
-*/
-Rcpp::List admm_tv(const arma::colvec& b, arma::colvec& xinit, const double lambda,
-                   const double reltol, const double abstol, const int maxiter,
-                   const double rho, const double alpha) {
+/*  Total Variation Minimization via ADMM     */
+Rcpp::List admm_tv(const arma::colvec& b,
+                   const arma::colvec& xinit,
+                   const double lambda,
+                   const double reltol, 
+                   const double abstol,
+                   const int maxiter,
+                   const double rho, 
+                   const double alpha) {
+  
   // 1. get parameters and tv difference matrix
+  int k = 0;
   const int n = b.n_elem;
-  arma::vec onesN(n,fill::ones);
+  double sqrtn = std::sqrt(static_cast<float>(n));
+  
+  arma::vec onesN(n, fill::ones);
   arma::mat D = diagmat(onesN);
-  for (int i=0;i<(n-1);i++) {
-    D(i,i+1) = -1;
+  for (int i=0; i<(n-1); i++) {
+    D(i, i+1) = -1;
   }
-  arma::mat I = diagmat(onesN);
-  arma::mat DtD = D.t()*D;
+  arma::mat I   = diagmat(onesN);
+  arma::mat DtD = D.t() * D;
 
   // 2. set ready
-  arma::colvec x(n,fill::zeros);
-  arma::colvec z(n,fill::zeros);
-  arma::colvec u(n,fill::zeros);
-  arma::colvec zold(n,fill::zeros);
-  arma::colvec Ax_hat(n,fill::zeros);
+  arma::colvec x(n, fill::zeros);
+  arma::colvec z(n, fill::zeros);
+  arma::colvec u(n, fill::zeros);
+  arma::colvec zold(n, fill::zeros);
+  arma::colvec Ax_hat(n, fill::zeros);
 
   // 3. iteration
-  arma::vec h_objval(maxiter,fill::zeros);
-  arma::vec h_r_norm(maxiter,fill::zeros);
-  arma::vec h_s_norm(maxiter,fill::zeros);
-  arma::vec h_eps_pri(maxiter,fill::zeros);
-  arma::vec h_eps_dual(maxiter,fill::zeros);
-
-  double sqrtn = std::sqrt(static_cast<float>(n));
-  arma::vec compare2(2,fill::zeros);
-  int k;
-  for (k=0;k<maxiter;k++) {
+  arma::vec h_objval(maxiter, fill::zeros);
+  arma::vec h_r_norm(maxiter, fill::zeros);
+  arma::vec h_s_norm(maxiter, fill::zeros);
+  arma::vec h_eps_pri(maxiter, fill::zeros);
+  arma::vec h_eps_dual(maxiter, fill::zeros);
+  arma::vec compare2(2, fill::zeros);
+  
+  for (k=0; k<maxiter; k++) {
     // 3-1. update 'x'
     x = solve(I+rho*DtD, b+rho*D.t()*(z-u));
 
@@ -112,9 +119,11 @@ Rcpp::List admm_tv(const arma::colvec& b, arma::colvec& xinit, const double lamb
 
 // ============================================================
 // admm_bp: Basis Pursuit via ADMM
-arma::colvec bp_shrinkage(arma::colvec a, const double kappa) {
+arma::colvec bp_shrinkage(const arma::colvec& a,
+                          const double kappa) {
+  
   const int n = a.n_elem;
-  arma::colvec y(n,fill::zeros);
+  arma::colvec y(n, fill::zeros);
   for (int i=0;i<n;i++) {
     // first term : max(0, a-kappa)
     if (a(i)-kappa > 0){
@@ -128,17 +137,20 @@ arma::colvec bp_shrinkage(arma::colvec a, const double kappa) {
   return(y);
 }
 
-/*
-* Basis Pursuit via ADMM (from Stanford)
-* URL : https://web.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
-* http://stanford.edu/~boyd/papers/pdf/admm_distr_stats.pdf
-* page 19 : section 3.3.1 : stopping criteria part (3.12).
-*/
-Rcpp::List admm_bp(const arma::mat& A, const arma::colvec& b, arma::colvec& xinit,
-                   const double reltol, const double abstol, const int maxiter,
-                   const double rho, const double alpha) {
+/* Basis Pursuit via ADMM  */
+Rcpp::List admm_bp(const arma::mat& A,
+                   const arma::colvec& b,
+                   const arma::colvec& xinit,
+                   const double reltol,
+                   const double abstol,
+                   const int maxiter,
+                   const double rho, 
+                   const double alpha) {
+  
   // 1. get parameters
+  int k = 0;
   const int n = A.n_cols;
+  double sqrtn = std::sqrt(static_cast<float>(n));
 
   // 2. set ready
   arma::colvec x(n,fill::zeros);
@@ -160,9 +172,7 @@ Rcpp::List admm_bp(const arma::mat& A, const arma::colvec& b, arma::colvec& xini
   arma::vec h_eps_pri(maxiter,fill::zeros);
   arma::vec h_eps_dual(maxiter,fill::zeros);
 
-  double sqrtn = std::sqrt(static_cast<float>(n));
-  int k;
-  for (k=0;k<maxiter;k++) {
+  for (k=0; k<maxiter; k++) {
     // 4-1. update 'x'
     x = P*(z-u) + q;
 
@@ -205,7 +215,9 @@ Rcpp::List admm_bp(const arma::mat& A, const arma::colvec& b, arma::colvec& xini
 
 // ===========================================================
 // admm_lad: LAD via ADMM
-arma::colvec lad_shrinkage(arma::colvec a, const double kappa){
+arma::colvec lad_shrinkage(const arma::colvec& a,
+                           const double kappa) {
+  
   const int n = a.n_elem;
   arma::colvec y(n,fill::zeros);
   for (int i=0;i<n;i++) {
@@ -221,17 +233,21 @@ arma::colvec lad_shrinkage(arma::colvec a, const double kappa){
   return(y);
 }
 
-/*
-* LAD via ADMM (from Stanford)
-* http://stanford.edu/~boyd/papers/pdf/admm_distr_stats.pdf
-* page 19 : section 3.3.1 : stopping criteria part (3.12).
-*/
-Rcpp::List admm_lad(const arma::mat& A, const arma::colvec& b, arma::colvec& xinit,
-                    const double reltol, const double abstol, const int maxiter,
-                    const double rho, const double alpha) {
+/*  LAD via ADMM (from Stanford)        */
+Rcpp::List admm_lad(const arma::mat& A,
+                    const arma::colvec& b,
+                    const arma::colvec& xinit,
+                    const double reltol,
+                    const double abstol,
+                    const int maxiter,
+                    const double rho, 
+                    const double alpha) {
+  
   // 1. get parameters
-  const int m = A.n_rows;
-  const int n = A.n_cols;
+  int k = 0;
+  const int m = A.n_rows, n = A.n_cols;
+  double sqrtn = std::sqrt(static_cast<float>(n));
+  double sqrtm = std::sqrt(static_cast<float>(m));
 
   // 2. set ready
   arma::colvec x(n,fill::zeros);
@@ -249,11 +265,8 @@ Rcpp::List admm_lad(const arma::mat& A, const arma::colvec& b, arma::colvec& xin
   arma::vec h_s_norm(maxiter,fill::zeros);
   arma::vec h_eps_pri(maxiter,fill::zeros);
   arma::vec h_eps_dual(maxiter,fill::zeros);
-
-  double sqrtn = std::sqrt(static_cast<float>(n));
-  double sqrtm = std::sqrt(static_cast<float>(m));
   arma::vec compare3(3,fill::zeros);
-  int k;
+  
   for (k=0;k<maxiter;k++) {
     // 4-1. update 'x'
     x = solve(trimatu(R),solve(trimatl(R.t()),A.t()*(b+z-u)));
@@ -298,7 +311,9 @@ Rcpp::List admm_lad(const arma::mat& A, const arma::colvec& b, arma::colvec& xin
 
 // ==========================================================
 // admm_rpca
-arma::vec shrink_vec_rpca(arma::vec x, double tau) {
+arma::vec shrink_vec_rpca(const arma::vec& x,
+                          const double tau) {
+  
   const int n = x.n_elem;
   arma::vec output(n,fill::zeros);
   double xij    = 0.0;
@@ -320,13 +335,12 @@ arma::vec shrink_vec_rpca(arma::vec x, double tau) {
   return(output);
 }
 
-arma::mat shrink_mat_rpca(arma::mat A, const double tau) {
-  const int n = A.n_rows;
-  const int p = A.n_cols;
+arma::mat shrink_mat_rpca(const arma::mat& A,
+                          const double tau) {
+  
+  const int n = A.n_rows, p = A.n_cols;
   arma::mat output(n,p,fill::zeros);
-  double zij    = 0.0;
-  double abszij = 0.0;
-  double signer = 0.0;
+  double zij = 0.0, abszij = 0.0, signer = 0.0;
   for (int i=0;i<n;i++){
     for (int j=0;j<p;j++){
       zij = A(i,j);
@@ -337,7 +351,6 @@ arma::mat shrink_mat_rpca(arma::mat A, const double tau) {
         signer = -1.0;
         abszij = -zij;
       }
-
       if (abszij > tau){
         output(i,j) = signer*(abszij-tau);
       }
@@ -346,7 +359,10 @@ arma::mat shrink_mat_rpca(arma::mat A, const double tau) {
   return(output);
 }
 
-arma::mat rpca_vectorpadding(arma::vec x, const int n, const int p) {
+arma::mat rpca_vectorpadding(const arma::vec& x,
+                             const int n,
+                             const int p) {
+  
   arma::mat output(n,p,fill::zeros);
   if (n<p){
     for (int i=0;i<n;i++){
@@ -361,8 +377,12 @@ arma::mat rpca_vectorpadding(arma::vec x, const int n, const int p) {
 }
 
 // ADMM for PCA
-Rcpp::List admm_rpca(const arma::mat& M, const double tol, const int maxiter,
-                     double mu, double lambda) {
+Rcpp::List admm_rpca(const arma::mat& M, 
+                     const double tol,
+                     const int maxiter,
+                     const double mu,
+                     const double lambda) {
+  
   // 1. get parameters
   const int n1 = M.n_rows;
   const int n2 = M.n_cols;
@@ -439,11 +459,12 @@ Rcpp::List admm_rpca(const arma::mat& M, const double tol, const int maxiter,
 
 // ==========================================================
 // admm_spca: ADMM for sparse PCA
-arma::vec spca_gamma(arma::vec sigma, double r) {
+arma::vec spca_gamma(const arma::vec& sigma,
+                     const double r) {
+  
   const int p = sigma.n_elem;
   int indj = 0;
-  double term1 = 0.0;
-  double term2 = 0.0;
+  double term1 = 0.0, term2 = 0.0;
   for (int j=0;j<p;j++){
     term1 = sigma(j);
     for (int k=j;k<p;k++){
@@ -471,7 +492,8 @@ arma::vec spca_gamma(arma::vec sigma, double r) {
   return(output);
 }
 
-arma::mat spca_shrinkage(arma::mat A, const double tau) {
+arma::mat spca_shrinkage(const arma::mat& A,
+                         const double tau) {
   const int n = A.n_rows;
   arma::mat output(n,n,fill::zeros);
   double zij    = 0.0;
@@ -497,8 +519,13 @@ arma::mat spca_shrinkage(arma::mat A, const double tau) {
 }
 
 // ADMM for sparse PCA
-Rcpp::List admm_spca(const arma::mat& Sigma, const double reltol, const double abstol,
-                     const int maxiter, double mu, double rho) {
+Rcpp::List admm_spca(const arma::mat& Sigma, 
+                     const double reltol,
+                     const double abstol,
+                     const int maxiter, 
+                     const double mu,
+                     const double rho) {
+  
   // 1. get parameters
   int p = Sigma.n_cols;
 
@@ -578,7 +605,8 @@ Rcpp::List admm_spca(const arma::mat& Sigma, const double reltol, const double a
 
 // ===========================================================
 // admm_sdp: ADMM for sparse positive definite matrix factorization
-arma::mat sdp_evdplus(arma::mat& X) {
+arma::mat sdp_evdplus(const arma::mat& X) {
+  
   int n = X.n_rows;
   arma::vec eigval;
   arma::mat eigvec;
@@ -592,15 +620,26 @@ arma::mat sdp_evdplus(arma::mat& X) {
   return(output);
 }
 
-double sdp_gap(arma::vec& b, arma::vec& y, arma::mat& C, arma::mat& X) {
+double sdp_gap(const arma::vec& b,
+               const arma::vec& y,
+               const arma::mat& C,
+               const arma::mat& X) {
+  
   double term1 = (std::abs(arma::dot(b,y) - arma::dot(C,X)));
   double term2 = 1.0 + std::abs(arma::dot(b,y)) + arma::dot(C,X);
   return(term1/term2);
 }
 
 // ADMM for sparse positive definite matrix factorization
-Rcpp::List admm_sdp(arma::mat& C, arma::field<arma::mat>& listA, arma::vec b, double mymu,
-                    double myrho, double mygamma, int maxiter, double abstol, bool printer) {
+Rcpp::List admm_sdp(const arma::mat& C,
+                    const arma::field<arma::mat>& listA,
+                    const arma::vec& b,
+                    const double mymu,
+                    const double myrho,
+                    const double mygamma,
+                    const int maxiter,
+                    const double abstol,
+                    const bool printer) {
   // parameters
   unsigned int n = C.n_rows;
   unsigned int m = b.n_elem;

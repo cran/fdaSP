@@ -11,6 +11,7 @@ importFrom("foreach", "%dopar%")
 importFrom("splines", "bs")
 importFrom("ks", "invvec", "vec")
 importFrom("pracma", "strcmpi")
+importFrom("CVXR", "Variable", "norm2", "Maximize", "Problem", "psolve")
 
 ## export all regularly named functions
 ## (but allow for private functions whose name starts with a dot).name <- function(...)
@@ -23,3 +24,4 @@ export(f2fSP)
 export(f2fSP_cv)
 export(softhresh)
 export(confband)
+export(forward_diff)

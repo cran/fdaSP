@@ -250,7 +250,8 @@ f2fSP <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, standa
   # Manage group & overall group weights
   if (is.null(group_weights)) {
     # Define the weights as in Yuan and Lin 2006, JRSSB
-    group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    #group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    group_weights <- rep(1, G)
   } else {
     if (overall.group == TRUE) {
       check_group_weights(x = group_weights, n = G, algname = "f2fSP", funname = "group_weights")
@@ -265,8 +266,9 @@ f2fSP <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, standa
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Manage variable weights
   if (is.null(var_weights)) {
-    var_weights <- 1.0 / colSums(GRmat)
-  } 
+    #var_weights <- 1.0 / colSums(GRmat)
+    var_weights <- 1.0 / sqrt(colSums(GRmat))
+  }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Get the sequence of lambda
@@ -306,12 +308,7 @@ f2fSP <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, standa
   ret <- .admm_ovglasso_fast(A = X.std, b = y.std, groups = out$grMat, group_weights = group_weights, var_weights = var_weights,
                              lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
                              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-  
-  # ret <- .Call("admm_ovglasso_fast", 
-  #              A = X.std, b = y.std, groups = out$grMat, group_weights = group_weights, var_weights = var_weights, 
-  #              lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada, 
-  #              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-  
+
   # get estimated coefficients and path
   mSpRegP <- t(ret$coef.path)
   vSpRegP <- ret$coefficients
@@ -671,7 +668,8 @@ f2fSP_cv <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, sta
   # Manage group & overall group weights
   if (is.null(group_weights)) {
     # Define the weights as in Yuan and Lin 2006, JRSSB
-    group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    #group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    group_weights <- rep(1, G)
   } else {
     if (overall.group == TRUE) {
       check_group_weights(x = group_weights, n = G, algname = "f2fSP", funname = "group_weights")
@@ -687,6 +685,7 @@ f2fSP_cv <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, sta
   # Manage variable weights
   if (is.null(var_weights)) {
     var_weights <- 1.0 / colSums(out$grMat)
+    var_weights <- 1.0 / sqrt(colSums(out$grMat))
   }
 
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -786,14 +785,7 @@ f2fSP_cv <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, sta
                          u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), lambda = lambda.min,
                          rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
                          reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-  
-  # ret  <- .Call("admm_ovglasso",
-  #               A = X.std, b = y.std, 
-  #               groups = out$grMat, group_weights = group_weights, var_weights = var_weights, 
-  #               u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), lambda = lambda.min, 
-  #               rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
-  #               reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-  
+
   # Store output: full sample estimate
   niter <- ret$niter
   if (niter < maxit) {

@@ -192,3 +192,7 @@ List lmridge(arma::mat mX, arma::vec vY, arma::vec lambda, unsigned int n, unsig
    return output                                        */
   return out;
 }
+
+
+
+

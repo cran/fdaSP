@@ -13,9 +13,11 @@ f2sSP_cv(
   var_weights = NULL,
   standardize.data = FALSE,
   splOrd = 4,
+  diff_order = 1,
   lambda = NULL,
   lambda.min.ratio = NULL,
   nlambda = NULL,
+  lambda2 = NULL,
   cv.fold = 5,
   intercept = FALSE,
   overall.group = FALSE,
@@ -40,12 +42,18 @@ each entry is the reciprocal of the number of groups including that basis. See B
 
 \item{splOrd}{the order \eqn{d} of the spline basis.}
 
-\item{lambda}{either a regularization parameter or a vector of regularization parameters. 
-In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.}
+\item{diff_order}{order of the discrete difference operator used in the smoothness penalty.
+The default is 1.}
+
+\item{lambda}{either a regularization parameter or a vector of regularization parameters.}
 
 \item{lambda.min.ratio}{smallest value for lambda, as a fraction of the maximum lambda value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.}
 
 \item{nlambda}{the number of lambda values - default is 30.}
+
+\item{lambda2}{either a non-negative smoothing regularization parameter or a vector of
+smoothing regularization parameters. If \code{NULL}, no smoothness penalty is used.
+In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.}
 
 \item{cv.fold}{the number of folds - default is 5.}
 
@@ -57,7 +65,7 @@ In this latter case the routine computes the whole path. If it is NULL values fo
 }
 \value{
 A named list containing \describe{
-\item{sp.coefficients}{a length-\eqn{M} solution vector solution vector for the parameters \eqn{\psi}, which corresponds to the minimum cross-validated MSE.}
+\item{sp.coefficients}{a length-\eqn{M} solution vector for the parameters \eqn{\psi}, which corresponds to the minimum cross-validated MSE.}
 \item{sp.fun}{a length-\eqn{r} vector providing the estimated functional coefficient for \eqn{\psi(t)} corresponding to the minimum cross-validated MSE.}
 \item{coefficients}{a length-\eqn{q} solution vector for the parameters \eqn{\gamma}, which corresponds to the minimum cross-validated MSE.
 It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.} 

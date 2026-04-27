@@ -212,6 +212,8 @@ linreg_ADMM_GLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, var
                  rho                  = 1, 
                  tau.ada              = 2,               
                  mu.ada               = 10,
+                 dof.toler_c          = 5,
+                 dof.toler_d          = 0.001,
                  print.out            = TRUE)
   
   nmsC                          <- names(con)
@@ -227,6 +229,8 @@ linreg_ADMM_GLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, var
   rho        <- con$rho
   tau.ada    <- con$tau.ada      
   mu.ada     <- con$mu.ada
+  toler_c    <- con$dof.toler_c
+  toler_d    <- con$dof.toler_d
   print.out  <- con$print.out
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -364,6 +368,26 @@ linreg_ADMM_GLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, var
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # Compute the degrees of freedom 
+  dof.out <- lm_dof_OVGLASSO(X                = X.std,
+                             Z                = Z,
+                             coeff            = sp.path,
+                             lambda           = lambda,
+                             GRmat            = GRmat,
+                             group_weights    = group_weights,
+                             var_weights      = var_weights,
+                             Umat             = ret$U,
+                             err_primal       = ret$err_pri,
+                             err_dual         = ret$err_dual,
+                             rho              = ret$rho,
+                             toler_c          = toler_c,
+                             toler_d          = toler_d)
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # compute the BIC
+  bic <- dim(X.std)[1] * log(ret$mse) + dof.out$dof * log(dim(X.std)[1]) 
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Print to screen
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   if (print.out == TRUE) {
@@ -380,6 +404,10 @@ linreg_ADMM_GLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, var
                  "sp.coef.path", 
                  "coefficients",
                  "coef.path",
+                 "dof",
+                 "dof.coeff_active",
+                 "dof.group_active",
+                 "bic",
                  "lambda.min",
                  "lambda",
                  "mse",
@@ -399,21 +427,25 @@ linreg_ADMM_GLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, var
     res$coefficients <- vRegP
     res$coef.path    <- path
   } 
-  res$sp.coefficients <- vSpRegP
-  res$sp.coef.path    <- sp.path
-  res$lambda.min      <- ret$lambda.min
-  res$lambda          <- ret$lambda
-  res$mse             <- ret$mse
-  res$min.mse         <- ret$min.mse
-  res$convergence     <- ret$convergence
-  res$elapsedTime     <- ret$elapsedTime
-  res$iternum         <- ret$iternum
-  res$objfun          <- ret$objfun
-  res$r_norm          <- ret$r_norm
-  res$s_norm          <- ret$s_norm
-  res$err_pri         <- ret$err_pri
-  res$err_dual        <- ret$err_dual
-  res$rho             <- ret$rho
+  res$sp.coefficients  <- vSpRegP
+  res$sp.coef.path     <- sp.path
+  res$dof              <- dof.out$dof
+  res$dof.coeff_active <- dof.out$coeff_active
+  res$dof.group_active <- dof.out$group_active
+  res$bic              <- bic
+  res$lambda.min       <- ret$lambda.min
+  res$lambda           <- ret$lambda
+  res$mse              <- ret$mse
+  res$min.mse          <- ret$min.mse
+  res$convergence      <- ret$convergence
+  res$elapsedTime      <- ret$elapsedTime
+  res$iternum          <- ret$iternum
+  res$objfun           <- ret$objfun
+  res$r_norm           <- ret$r_norm
+  res$s_norm           <- ret$s_norm
+  res$err_pri          <- ret$err_pri
+  res$err_dual         <- ret$err_dual
+  res$rho              <- ret$rho
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output

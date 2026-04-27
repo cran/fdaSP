@@ -414,34 +414,26 @@ linreg_ADMM_spOVGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NU
     mX_ <- X.std[ret.gr$groups.cv[[kt]],]
     vY_ <- y.std[ret.gr$groups.cv[[kt]]]
     if (is.null(Z)) {
-      ret <- .admm_spglasso_fast(A =  mX_, b = vY_, groups = GRmat, group_weights = group_weights,
-                                 var_weights = var_weights, var_weights_L1 = var_weights_L1,
-                                 lambda = lambda, alpha = alpha, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
-                                 reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-      
-      # ret <- .Call("admm_spglasso_fast",
-      #              A =  mX_, b = vY_, groups = GRmat, group_weights = group_weights, 
-      #              var_weights = var_weights, var_weights_L1 = var_weights_L1,
-      #              lambda = lambda, alpha = alpha, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
-      #              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
+      ret <- .admm_spovglasso_fast(A =  mX_, b = vY_, groups = GRmat, group_weights = group_weights,
+                                   var_weights = var_weights, var_weights_L1 = var_weights_L1,
+                                   lambda = lambda, alpha = alpha, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
+                                   reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       
       # fit
       mSpRegP_ <- ret$coef.path
       fit      <- X.std[ret.gr$groups.pred[[kt]],] %*% t(mSpRegP_)
     } else {
-      mZ_ <- Z[ret.gr$groups.cv[[kt]],]
-      ret <- .admm_spglasso_cov_fast(W = mX_, Z = mZ_, y = vY_,
-                                     groups = GRmat, group_weights = group_weights,
-                                     var_weights = var_weights, var_weights_L1 = var_weights_L1,
-                                     lambda = lambda, alpha = alpha, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
-                                     reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-      
-      # ret <- .Call("admm_spglasso_cov_fast", 
-      #              W = mX_, Z = mZ_, y = vY_,
-      #              groups = GRmat, group_weights = group_weights, 
-      #              var_weights = var_weights, var_weights_L1 = var_weights_L1,
-      #              lambda = lambda, alpha = alpha, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
-      #              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
+      if (dim(Z)[2] > 1) {
+        #mZ_ <- Z[ret.gr$groups.cv[[kt]],]
+        mZ_ <- matrix(Z[ret.gr$groups.cv[[kt]],], nrow = length(ret.gr$groups.cv[[kt]]), ncol = dim(Z)[2])
+      } else {
+        mZ_ <- matrix(Z[ret.gr$groups.cv[[kt]],], nrow = length(ret.gr$groups.cv[[kt]]), ncol = 1)
+      }
+      ret <- .admm_spovglasso_cov_fast(W = mX_, Z = mZ_, y = vY_,
+                                       groups = GRmat, group_weights = group_weights,
+                                       var_weights = var_weights, var_weights_L1 = var_weights_L1,
+                                       lambda = lambda, alpha = alpha, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
+                                       reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       
       # fit
       mSpRegP_ <- ret$sp.coef.path
@@ -477,33 +469,20 @@ linreg_ADMM_spOVGLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NU
   # get estimate over the full sample
   rho_ <- ret$rho[[indi.min.mse]]
   if (is.null(Z)) {
-    ret  <- .admm_spglasso(A = X.std, b = y.std,
-                           groups = GRmat, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1,
-                           u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), lambda1 = lambda.min, lambda2 = alpha,
-                           rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
-                           reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
-    # ret  <- .Call("admm_spglasso", 
-    #               A = X.std, b = y.std, 
-    #               groups = GRmat, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1,
-    #               u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), lambda1 = lambda.min, lambda2 = alpha, 
-    #               rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
-    #               reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
+    ret  <- .admm_spovglasso(A = X.std, b = y.std,
+                             groups = GRmat, group_weights = group_weights, var_weights = var_weights, var_weights_L1 = var_weights_L1,
+                             u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), lambda = lambda.min, alpha = alpha,
+                             rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
+                             reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
+        
     # get estimated parameters
     vSpRegP <- ret$x
   } else {
-    ret  <- .admm_spglasso_cov(W = X.std, Z = Z, y = y.std, u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), var_weights_L1 = var_weights_L1,
-                               groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                               lambda1 = lambda.min, lambda2 = alpha, rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
-                               reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
-    # ret  <- .Call("admm_spglasso_cov",
-    #               W = X.std, Z = Z, y = y.std, u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), var_weights_L1 = var_weights_L1,
-    #               groups = GRmat, group_weights = group_weights, var_weights = var_weights, 
-    #               lambda1 = lambda.min, lambda2 = alpha, rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
-    #               reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
+    ret  <- .admm_spovglasso_cov(W = X.std, Z = Z, y = y.std, u = t(ret$U[indi.min.mse,]), z = t(ret$Z[indi.min.mse,]), var_weights_L1 = var_weights_L1,
+                                 groups = GRmat, group_weights = group_weights, var_weights = var_weights,
+                                 lambda = lambda.min, alpha = alpha, rho_adaptation = adaptation, rho = rho_[length(rho_)], tau = tau.ada, mu = mu.ada,
+                                 reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
+        
     # get estimated parameters
     vSpRegP <- ret$x
     vRegP   <- ret$v

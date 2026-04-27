@@ -26,6 +26,7 @@
 #' @param Z an \eqn{(n\times q)} full column rank matrix of predictors that are not penalized. 
 #' @param y a length-\eqn{n} response vector.
 #' @param var_weights a vector of length \eqn{p} containing variable-specific weights. The default is NULL.
+#' @param adaptive a flag for running adaptive Lasso. The default is FALSE.
 #' @param standardize.data logical. Should data be standardized?
 #' @param lambda either a regularization parameter or a vector of regularization parameters. 
 #' In this latter case the routine computes the whole path. If it is NULL the path values for lambda are provided by the routine.
@@ -73,6 +74,8 @@
 #' \item{abstol}{absolute tolerance stopping criterion. The default value is sqrt(sqrt(.Machine$double.eps)).}
 #' \item{reltol}{relative tolerance stopping criterion. The default value is sqrt(.Machine$double.eps).}
 #' \item{maxit}{maximum number of iterations. The default value is 100.}
+#' \item{dof.toler_c}{numeric tolerance for identifying effective zeros in the degrees-of-freedom calculation. The default is 5.”}
+#' \item{dof.toler_d}{numeric tolerance for identifying effective zeros in the degrees-of-freedom calculation. The default is 0.001.}
 #' \item{print.out}{logical. If it is TRUE, a message about the procedure is printed. The default value is TRUE.}
 #' }
 #' 
@@ -120,7 +123,8 @@
 #' \insertRef{zou.2006}{fdaSP} 
 #'
 #' @noRd
-linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.data = FALSE, 
+linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, 
+                              adaptive = FALSE, standardize.data = FALSE, 
                               lambda = NULL, lambda.min.ratio = NULL, nlambda = 30, 
                               intercept = FALSE, control = list()) {
   
@@ -128,7 +132,7 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
   # add constant
   if (standardize.data == TRUE) {
     if (intercept == TRUE){
-      intercept = FALSE
+      intercept <- FALSE
       warning("* linreg_ADMM_LASSO : intercept should be set to FALSE is data are standardized!\n")
     }
   }
@@ -168,15 +172,6 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  # check for adaptive-LASSO
-  if (is.null(var_weights)) {
-    adalasso    <- FALSE
-    var_weights <- rep(1L, p)
-  } else {
-    adalasso <- TRUE
-  }
-  
-  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Standardise response and design matrix
   if (standardize.data == TRUE) {
     res   <- standardizemat(X, y)
@@ -189,6 +184,46 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
     y.std <- y
   }
   
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # check for adaptive-LASSO vs weighted LASSO vs LASSO
+  # se l'utente da pesi var_weights NULL ma ha messo adaptive = TRUE allora
+  # fa adaptive LASSO con pesi OLS calcolati di seguito. 
+  if (!is.null(adaptive)) {
+    if (adaptive == TRUE) {
+      #adalasso <- TRUE
+      warning("* lmSP : adaptive Lasso is running!\n")
+      if (!is.null(var_weights)) {
+        warning("* lmSP : var_weights has been over-written by the inverse of the absolute value of the LS estimates!\n")
+      }
+      if (is.null(Z)) {
+        coeff_LS    <- as.numeric(lm_ols(X = X.std, y = y.std))
+        var_weights <- 1.0 / abs(coeff_LS)
+      } else {
+        coeff_LS    <- as.numeric(lm_ols_FWL(X = X.std, Z = Z, y = y.std)$coeff_X)
+        var_weights <- 1.0 / abs(coeff_LS)
+      }
+    }
+  } else {
+    warning("* lmSP : adaptive is set to FALSE if it is not provided by the user!\n")
+    adaptive <- FALSE
+  }
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # check for NULL var_weights
+  if (is.null(var_weights)) {
+    #adalasso    <- FALSE
+    var_weights <- rep(1L, p)
+    if (adaptive == TRUE) {
+      warning("* lmSP : var_weights are set all equal to one if var_weights are not provided by the user!\n")  
+    }
+  } else if (adaptive == FALSE) {
+    diff_ <- var_weights - rep(1L, p)
+    if (max(abs(diff_)) > .Machine$double.eps) {
+      warning("* lmSP : weighted Lasso is running with weights provided by the user!\n")
+    }
+    #adalasso <- FALSE
+  }
+
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Pre-processing: lambda parameter (in case of a single lambda)
   if (!is.null(lambda)) {
@@ -218,6 +253,8 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
                  rho                  = 1, 
                  tau.ada              = 2,               
                  mu.ada               = 10,
+                 dof.toler_c          = 5,
+                 dof.toler_d          = 0.001,
                  print.out            = TRUE)
   
   nmsC                          <- names(con)
@@ -233,6 +270,8 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
   rho        <- con$rho
   tau.ada    <- con$tau.ada      
   mu.ada     <- con$mu.ada
+  toler_c    <- con$dof.toler_c
+  toler_d    <- con$dof.toler_d
   print.out  <- con$print.out
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -279,39 +318,23 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Run overlap group Lasso
   if (is.null(Z)) {
-    if (adalasso == TRUE) {
+    if (adaptive == TRUE) {
       ret <- .admm_adalasso_fast(A = X.std, b = y.std, var_weights = var_weights, lambda = lambda, rho_adaptation = adaptation, rho = rho,
                                  tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-      
-      # ret <- .Call("admm_adalasso_fast", 
-      #              A = X.std, b = y.std, var_weights = var_weights, lambda = lambda, rho_adaptation = adaptation, rho = rho, 
-      #              tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
     } else {
       ret <- .admm_lasso_fast(A = X.std, b = y.std, lambda = lambda, rho_adaptation = adaptation, rho = rho,
                               tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-      
-      # ret <- .Call("admm_lasso_fast", 
-      #              A = X.std, b = y.std, lambda = lambda, rho_adaptation = adaptation, rho = rho, 
-      #              tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
     }
     # get estimated coefficients and path
     mSpRegP <- t(ret$coef.path)
     vSpRegP <- ret$coefficients
   } else {
-    if (adalasso == TRUE) {
+    if (adaptive == TRUE) {
       ret <- .admm_adalasso_cov_fast(W = X.std, Z = Z, y = y.std, var_weights = var_weights, lambda = lambda, rho_adaptation = adaptation, rho = rho,
                                      tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-      
-      # ret <- .Call("admm_adalasso_cov_fast",
-      #              W = X.std, Z = Z, y = y.std, var_weights = var_weights, lambda = lambda, rho_adaptation = adaptation, rho = rho, 
-      #              tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
     } else {
       ret <- .admm_lasso_cov_fast(W = X.std, Z = Z, y = y.std, lambda = lambda, rho_adaptation = adaptation, rho = rho,
                                   tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-      
-      # ret <- .Call("admm_lasso_cov_fast",
-      #              W = X.std, Z = Z, y = y.std, lambda = lambda, rho_adaptation = adaptation, rho = rho, 
-      #              tau = tau.ada, mu = mu.ada, reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
     }
     # get estimated coefficients and path
     mSpRegP <- t(ret$sp.coef.path)
@@ -338,6 +361,39 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # Compute the degrees of freedom 
+  if (adaptive == TRUE) {
+    dof.out <- lm_dof_OVGLASSO(X                = X.std,
+                               Z                = Z,
+                               coeff            = sp.path,
+                               lambda           = lambda,
+                               GRmat            = diag(1, dim(X.std)[2]),
+                               group_weights    = var_weights,
+                               var_weights      = rep(1, dim(X.std)[2]),
+                               Umat             = ret$U,
+                               err_primal       = ret$err_pri,
+                               err_dual         = ret$err_dual,
+                               rho              = ret$rho,
+                               toler_c          = toler_c,
+                               toler_d          = toler_d)
+  } else {
+    dof.out <- lm_dof_LASSO(X                = X.std, 
+                            coeff            = sp.path, 
+                            lambda           = lambda, 
+                            var_weights      = var_weights,
+                            Umat             = ret$U,
+                            err_primal       = ret$err_pri,
+                            err_dual         = ret$err_dual,
+                            rho              = ret$rho,
+                            toler_c          = toler_c,
+                            toler_d          = toler_d)
+  }
+
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # compute the BIC
+  bic <- dim(X.std)[1] * log(ret$mse) + dof.out$dof * log(dim(X.std)[1]) 
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Print to screen
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   if (print.out == TRUE) {
@@ -354,6 +410,9 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
                  "sp.coef.path", 
                  "coefficients",
                  "coef.path",
+                 "dof",
+                 "dof.coeff_active",
+                 "bic",
                  "lambda.min",
                  "lambda",
                  "mse",
@@ -373,21 +432,24 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL, standardize.da
     res$coefficients <- vRegP
     res$coef.path    <- path
   } 
-  res$sp.coefficients <- vSpRegP
-  res$sp.coef.path    <- sp.path
-  res$lambda.min      <- ret$lambda.min
-  res$lambda          <- ret$lambda
-  res$mse             <- ret$mse
-  res$min.mse         <- ret$min.mse
-  res$convergence     <- ret$convergence
-  res$elapsedTime     <- ret$elapsedTime
-  res$iternum         <- ret$iternum
-  res$objfun          <- ret$objfun
-  res$r_norm          <- ret$r_norm
-  res$s_norm          <- ret$s_norm
-  res$err_pri         <- ret$err_pri
-  res$err_dual        <- ret$err_dual
-  res$rho             <- ret$rho
+  res$sp.coefficients  <- vSpRegP
+  res$sp.coef.path     <- sp.path
+  res$dof              <- dof.out$dof
+  res$dof.coeff_active <- dof.out$coeff_active
+  res$bic              <- bic
+  res$lambda.min       <- ret$lambda.min
+  res$lambda           <- ret$lambda
+  res$mse              <- ret$mse
+  res$min.mse          <- ret$min.mse
+  res$convergence      <- ret$convergence
+  res$elapsedTime      <- ret$elapsedTime
+  res$iternum          <- ret$iternum
+  res$objfun           <- ret$objfun
+  res$r_norm           <- ret$r_norm
+  res$s_norm           <- ret$s_norm
+  res$err_pri          <- ret$err_pri
+  res$err_dual         <- ret$err_dual
+  res$rho              <- ret$rho
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output

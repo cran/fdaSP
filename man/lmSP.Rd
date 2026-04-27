@@ -9,10 +9,12 @@ lmSP(
   Z = NULL,
   y,
   penalty = c("LASSO", "GLASSO", "spGLASSO", "OVGLASSO", "spOVGLASSO"),
-  groups,
+  groups = NULL,
   group_weights = NULL,
   var_weights = NULL,
   var_weights_L1 = NULL,
+  weights_adaptive = FALSE,
+  adaptive = FALSE,
   standardize.data = TRUE,
   intercept = FALSE,
   overall.group = FALSE,
@@ -35,14 +37,20 @@ for the group-Lasso penalty, 'spGLASSO', for the sparse group-Lasso penalty, 'OV
 for the overlap group-Lasso penalty and 'spOVGLASSO', for the sparse overlap group-Lasso penalty.}
 
 \item{groups}{either a vector of length \eqn{p} of consecutive integers describing the grouping of the coefficients, 
-or a list with two elements: the first element is a vector of length \eqn{\sum_{g=1}^G n_g} containing the variables belonging to each group, where \eqn{n_g} is the cardinality of the \eqn{g}-th group, 
-while the second element is a vector of length \eqn{G} containing the group lengths (see example below).}
+or a list with two elements: the first element 'groups' is a vector of length \eqn{\sum_{g=1}^G n_g} containing the variables belonging to each group, where \eqn{n_g} is the cardinality of the \eqn{g}-th group,
+while the second element 'Glen' is a vector of length \eqn{G} containing the group lengths (see example below).}
 
 \item{group_weights}{a vector of length \eqn{G} containing group-specific weights. The default is square root of the group cardinality, see Yuan and Lin (2006).}
 
 \item{var_weights}{a vector of length \eqn{p} containing variable-specific weights. The default is a vector of ones.}
 
 \item{var_weights_L1}{a vector of length \eqn{p} containing variable-specific weights for the \eqn{L_1} penalty. The default is a vector of ones.}
+
+\item{weights_adaptive}{logical. If \code{TRUE}, adaptive weights are computed from an initial 
+least squares estimate. This option is ignored (and set to \code{FALSE}) when 
+\code{group_weights} are provided by the user, since external weights override the adaptive scheme.}
+
+\item{adaptive}{a flag for running adaptive Lasso. The default is FALSE.}
 
 \item{standardize.data}{logical. Should data be standardized?}
 
@@ -132,6 +140,8 @@ An adaptive version of this model can be obtained if the matrices \eqn{T} and \e
 \item{abstol}{absolute tolerance stopping criterion. The default value is sqrt(sqrt(.Machine$double.eps)).}
 \item{reltol}{relative tolerance stopping criterion. The default value is sqrt(.Machine$double.eps).}
 \item{maxit}{maximum number of iterations. The default value is 100.}
+\item{dof.toler_c}{numeric tolerance for identifying effective zeros in the degrees-of-freedom calculation. The default is 5.}
+\item{dof.toler_d}{numeric tolerance for identifying effective zeros in the degrees-of-freedom calculation. The default is 0.001.}
 \item{print.out}{logical. If it is TRUE, a message about the procedure is printed. The default value is TRUE.}
 }
 }

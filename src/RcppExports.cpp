@@ -11,68 +11,410 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// admm_lasso
-Rcpp::List admm_lasso(const arma::mat& A, const arma::colvec& b, arma::colvec& u, arma::colvec& z, const double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_lasso(SEXP ASEXP, SEXP bSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+// glasso_Gmat2Fmat_sparse
+arma::sp_mat glasso_Gmat2Fmat_sparse(const arma::mat& Gmat, const arma::vec& var_weights);
+RcppExport SEXP _fdaSP_glasso_Gmat2Fmat_sparse(SEXP GmatSEXP, SEXP var_weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_lasso(A, b, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    Rcpp::traits::input_parameter< const arma::mat& >::type Gmat(GmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(glasso_Gmat2Fmat_sparse(Gmat, var_weights));
     return rcpp_result_gen;
 END_RCPP
 }
-// admm_adalasso
-Rcpp::List admm_adalasso(const arma::mat& A, const arma::colvec& b, arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_adalasso(SEXP ASEXP, SEXP bSEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+// ovglasso_Gmat2Fmat_sparse
+arma::sp_mat ovglasso_Gmat2Fmat_sparse(const arma::mat& Gmat, const arma::vec& var_weights);
+RcppExport SEXP _fdaSP_ovglasso_Gmat2Fmat_sparse(SEXP GmatSEXP, SEXP var_weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Gmat(GmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ovglasso_Gmat2Fmat_sparse(Gmat, var_weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_dof_LASSO_1lambda
+Rcpp::List lm_dof_LASSO_1lambda(const arma::mat& X, const arma::vec& coeff, const double lambda, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_lm_dof_LASSO_1lambda(SEXP XSEXP, SEXP coeffSEXP, SEXP lambdaSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
     Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_adalasso(A, b, var_weights, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_dof_LASSO_1lambda(X, coeff, lambda, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_dof_OVGLASSO_1lambda
+Rcpp::List lm_dof_OVGLASSO_1lambda(const arma::mat& X, const arma::vec& coeff, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_lm_dof_OVGLASSO_1lambda(SEXP XSEXP, SEXP coeffSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_dof_OVGLASSO_1lambda(X, coeff, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_cov_dof_OVGLASSO_1lambda
+Rcpp::List lm_cov_dof_OVGLASSO_1lambda(const arma::mat& X, const arma::mat& Z, const arma::vec& coeff_X, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_lm_cov_dof_OVGLASSO_1lambda(SEXP XSEXP, SEXP ZSEXP, SEXP coeff_XSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_X(coeff_XSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_cov_dof_OVGLASSO_1lambda(X, Z, coeff_X, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_adaptive_dof_OVGLASSO_1lambda
+Rcpp::List lm_adaptive_dof_OVGLASSO_1lambda(const arma::mat& X, const arma::vec& coeff, const arma::vec& coeff_LS, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_lm_adaptive_dof_OVGLASSO_1lambda(SEXP XSEXP, SEXP coeffSEXP, SEXP coeff_LSSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_LS(coeff_LSSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_adaptive_dof_OVGLASSO_1lambda(X, coeff, coeff_LS, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_cov_adaptive_dof_OVGLASSO_1lamba
+Rcpp::List lm_cov_adaptive_dof_OVGLASSO_1lamba(const arma::mat& X, const arma::mat& Z, const arma::vec& coeff_X, const arma::vec& coeff_X_LS, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_lm_cov_adaptive_dof_OVGLASSO_1lamba(SEXP XSEXP, SEXP ZSEXP, SEXP coeff_XSEXP, SEXP coeff_X_LSSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_X(coeff_XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_X_LS(coeff_X_LSSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_cov_adaptive_dof_OVGLASSO_1lamba(X, Z, coeff_X, coeff_X_LS, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_dof_1lambda
+Rcpp::List f2s_dof_1lambda(const arma::mat& W, const arma::vec& coeff, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_dof_1lambda(SEXP WSEXP, SEXP coeffSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_dof_1lambda(W, coeff, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_cov_dof_1lambda
+Rcpp::List f2s_cov_dof_1lambda(const arma::mat& W, const arma::mat& Z, const arma::vec& coeff_W, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_cov_dof_1lambda(SEXP WSEXP, SEXP ZSEXP, SEXP coeff_WSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_W(coeff_WSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_cov_dof_1lambda(W, Z, coeff_W, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_smo_dof_1lambda
+Rcpp::List f2s_smo_dof_1lambda(const arma::mat& W, const arma::vec& coeff, const double lambda, const double lambda2, const int diff_order, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_smo_dof_1lambda(SEXP WSEXP, SEXP coeffSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_smo_dof_1lambda(W, coeff, lambda, lambda2, diff_order, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_cov_smo_dof_1lambda
+Rcpp::List f2s_cov_smo_dof_1lambda(const arma::mat& W, const arma::mat& Z, const arma::vec& coeff_W, const double lambda, const double lambda2, const int diff_order, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_cov_smo_dof_1lambda(SEXP WSEXP, SEXP ZSEXP, SEXP coeff_WSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_W(coeff_WSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_cov_smo_dof_1lambda(W, Z, coeff_W, lambda, lambda2, diff_order, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_adaptive_dof_1lambda
+Rcpp::List f2s_adaptive_dof_1lambda(const arma::mat& W, const arma::vec& coeff, const arma::vec& coeff_LS, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_adaptive_dof_1lambda(SEXP WSEXP, SEXP coeffSEXP, SEXP coeff_LSSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_LS(coeff_LSSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_adaptive_dof_1lambda(W, coeff, coeff_LS, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_cov_adaptive_dof_1lambda
+Rcpp::List f2s_cov_adaptive_dof_1lambda(const arma::mat& W, const arma::mat& Z, const arma::vec& coeff_W, const arma::vec& coeff_W_LS, const double lambda, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_cov_adaptive_dof_1lambda(SEXP WSEXP, SEXP ZSEXP, SEXP coeff_WSEXP, SEXP coeff_W_LSSEXP, SEXP lambdaSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_W(coeff_WSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_W_LS(coeff_W_LSSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_cov_adaptive_dof_1lambda(W, Z, coeff_W, coeff_W_LS, lambda, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_smo_adaptive_dof_1lambda
+Rcpp::List f2s_smo_adaptive_dof_1lambda(const arma::mat& W, const arma::vec& coeff, const arma::vec& coeff_LS, const double lambda, const double lambda2, const int diff_order, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_smo_adaptive_dof_1lambda(SEXP WSEXP, SEXP coeffSEXP, SEXP coeff_LSSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff(coeffSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_LS(coeff_LSSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_smo_adaptive_dof_1lambda(W, coeff, coeff_LS, lambda, lambda2, diff_order, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_adaptive_cov_smo_dof_1lambda
+Rcpp::List f2s_adaptive_cov_smo_dof_1lambda(const arma::mat& W, const arma::mat& Z, const arma::vec& coeff_W, const arma::vec& coeff_W_LS, const double lambda, const double lambda2, const int diff_order, const arma::mat& GRmat, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& Uvec, const double err_primal, const double err_dual, const double rho, const double toler_c, const double toler_d);
+RcppExport SEXP _fdaSP_f2s_adaptive_cov_smo_dof_1lambda(SEXP WSEXP, SEXP ZSEXP, SEXP coeff_WSEXP, SEXP coeff_W_LSSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP GRmatSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP UvecSEXP, SEXP err_primalSEXP, SEXP err_dualSEXP, SEXP rhoSEXP, SEXP toler_cSEXP, SEXP toler_dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_W(coeff_WSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type coeff_W_LS(coeff_W_LSSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type GRmat(GRmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Uvec(UvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_primal(err_primalSEXP);
+    Rcpp::traits::input_parameter< const double >::type err_dual(err_dualSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_c(toler_cSEXP);
+    Rcpp::traits::input_parameter< const double >::type toler_d(toler_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_adaptive_cov_smo_dof_1lambda(W, Z, coeff_W, coeff_W_LS, lambda, lambda2, diff_order, GRmat, group_weights, var_weights, Uvec, err_primal, err_dual, rho, toler_c, toler_d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_bic
+arma::vec f2s_bic(const arma::vec& y, const arma::mat& W, const arma::mat& coeff_path, const arma::vec& df);
+RcppExport SEXP _fdaSP_f2s_bic(SEXP ySEXP, SEXP WSEXP, SEXP coeff_pathSEXP, SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type coeff_path(coeff_pathSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_bic(y, W, coeff_path, df));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_cov_bic
+arma::vec f2s_cov_bic(const arma::vec& y, const arma::mat& W, const arma::mat& Z, const arma::mat& W_coeff_path, const arma::mat& Z_coeff_path, const arma::vec& df);
+RcppExport SEXP _fdaSP_f2s_cov_bic(SEXP ySEXP, SEXP WSEXP, SEXP ZSEXP, SEXP W_coeff_pathSEXP, SEXP Z_coeff_pathSEXP, SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W_coeff_path(W_coeff_pathSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z_coeff_path(Z_coeff_pathSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_cov_bic(y, W, Z, W_coeff_path, Z_coeff_path, df));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_ebic
+arma::vec f2s_ebic(const arma::vec& y, const arma::mat& X, const arma::mat& coeff_path, const arma::vec& df, const double kappa);
+RcppExport SEXP _fdaSP_f2s_ebic(SEXP ySEXP, SEXP XSEXP, SEXP coeff_pathSEXP, SEXP dfSEXP, SEXP kappaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type coeff_path(coeff_pathSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< const double >::type kappa(kappaSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_ebic(y, X, coeff_path, df, kappa));
+    return rcpp_result_gen;
+END_RCPP
+}
+// f2s_cov_ebic
+arma::vec f2s_cov_ebic(const arma::vec& y, const arma::mat& W, const arma::mat& Z, const arma::mat& W_coeff_path, const arma::mat& Z_coeff_path, const arma::vec& df, const double kappa);
+RcppExport SEXP _fdaSP_f2s_cov_ebic(SEXP ySEXP, SEXP WSEXP, SEXP ZSEXP, SEXP W_coeff_pathSEXP, SEXP Z_coeff_pathSEXP, SEXP dfSEXP, SEXP kappaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W_coeff_path(W_coeff_pathSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z_coeff_path(Z_coeff_pathSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< const double >::type kappa(kappaSEXP);
+    rcpp_result_gen = Rcpp::wrap(f2s_cov_ebic(y, W, Z, W_coeff_path, Z_coeff_path, df, kappa));
     return rcpp_result_gen;
 END_RCPP
 }
 // admm_glasso
-Rcpp::List admm_glasso(const arma::mat& A, const arma::colvec& b, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+Rcpp::List admm_glasso(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
 RcppExport SEXP _fdaSP_admm_glasso(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
     Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
@@ -84,339 +426,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// admm_spglasso
-Rcpp::List admm_spglasso(const arma::mat& A, const arma::colvec& b, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, arma::vec& var_weights_L1, arma::colvec& u, arma::colvec& z, const double lambda1, const double lambda2, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_spglasso(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambda1SEXP, SEXP lambda2SEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda1(lambda1SEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_spglasso(A, b, groups, group_weights, var_weights, var_weights_L1, u, z, lambda1, lambda2, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_ovglasso
-Rcpp::List admm_ovglasso(const arma::mat& A, const arma::colvec& b, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_ovglasso(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_ovglasso(A, b, groups, group_weights, var_weights, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_lasso_fast
-Rcpp::List admm_lasso_fast(const arma::mat& A, arma::vec& b, arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_lasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_lasso_fast(A, b, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_glasso_fast
-Rcpp::List admm_glasso_fast(const arma::mat& A, arma::vec& b, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_glasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_glasso_fast(A, b, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_spglasso_fast
-Rcpp::List admm_spglasso_fast(const arma::mat& A, arma::vec& b, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, arma::vec& var_weights_L1, const arma::vec lambda, const double alpha, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_spglasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_spglasso_fast(A, b, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_ovglasso_fast
-Rcpp::List admm_ovglasso_fast(const arma::mat& A, arma::vec& b, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_ovglasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_fast(A, b, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_adalasso_fast
-Rcpp::List admm_adalasso_fast(const arma::mat& A, arma::vec& b, arma::vec& var_weights, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_adalasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_adalasso_fast(A, b, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_lasso_cov_fast
-Rcpp::List admm_lasso_cov_fast(arma::mat& W, arma::mat Z, arma::vec& y, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_lasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_lasso_cov_fast(W, Z, y, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_glasso_cov_fast
-Rcpp::List admm_glasso_cov_fast(arma::mat& W, arma::mat Z, arma::vec& y, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_glasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_glasso_cov_fast(W, Z, y, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_ovglasso_cov_fast
-Rcpp::List admm_ovglasso_cov_fast(arma::mat& W, arma::mat& Z, arma::vec& y, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_ovglasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_cov_fast(W, Z, y, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_adalasso_cov_fast
-Rcpp::List admm_adalasso_cov_fast(arma::mat& W, arma::mat& Z, arma::vec& y, arma::vec& var_weights, const arma::vec lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_adalasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_adalasso_cov_fast(W, Z, y, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_spglasso_cov_fast
-Rcpp::List admm_spglasso_cov_fast(arma::mat& W, arma::mat& Z, arma::vec& y, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, arma::vec& var_weights_L1, const arma::vec lambda, const double alpha, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_spglasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_spglasso_cov_fast(W, Z, y, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
-// admm_lasso_cov
-Rcpp::List admm_lasso_cov(arma::mat& W, arma::mat& Z, const arma::colvec& y, arma::colvec& u, arma::colvec& z, const double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_lasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
-    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
-    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_lasso_cov(W, Z, y, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
-    return rcpp_result_gen;
-END_RCPP
-}
 // admm_glasso_cov
-Rcpp::List admm_glasso_cov(arma::mat& W, arma::mat& Z, arma::vec& y, arma::colvec& u, arma::colvec& z, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+Rcpp::List admm_glasso_cov(const arma::mat& W, const arma::mat& Z, const arma::vec& y, arma::colvec& u, arma::colvec& z, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
 RcppExport SEXP _fdaSP_admm_glasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
@@ -428,22 +453,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// admm_ovglasso_cov
-Rcpp::List admm_ovglasso_cov(arma::mat& W, arma::mat& Z, arma::vec& y, arma::colvec& u, arma::colvec& z, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_ovglasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+// admm_glasso_fast
+Rcpp::List admm_glasso_fast(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_glasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
@@ -451,24 +473,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
     Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_cov(W, Z, y, u, z, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    rcpp_result_gen = Rcpp::wrap(admm_glasso_fast(A, b, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
     return rcpp_result_gen;
 END_RCPP
 }
-// admm_adalasso_cov
-Rcpp::List admm_adalasso_cov(arma::mat W, arma::mat& Z, arma::colvec& y, arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_adalasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+// admm_glasso_cov_fast
+Rcpp::List admm_glasso_cov_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_glasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
@@ -476,28 +498,56 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
     Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
-    rcpp_result_gen = Rcpp::wrap(admm_adalasso_cov(W, Z, y, var_weights, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    rcpp_result_gen = Rcpp::wrap(admm_glasso_cov_fast(W, Z, y, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
     return rcpp_result_gen;
 END_RCPP
 }
-// admm_spglasso_cov
-Rcpp::List admm_spglasso_cov(arma::mat& W, arma::mat& Z, arma::vec& y, arma::mat& groups, arma::vec& group_weights, arma::vec& var_weights, arma::vec& var_weights_L1, arma::colvec& u, arma::colvec& z, const double lambda1, const double lambda2, bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
-RcppExport SEXP _fdaSP_admm_spglasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambda1SEXP, SEXP lambda2SEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+// admm_spglasso
+Rcpp::List admm_spglasso(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, arma::colvec& u, arma::colvec& z, const double lambda1, const double lambda2, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spglasso(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambda1SEXP, SEXP lambda2SEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type groups(groupsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type group_weights(group_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights(var_weightsSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
     Rcpp::traits::input_parameter< const double >::type lambda1(lambda1SEXP);
     Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
-    Rcpp::traits::input_parameter< bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spglasso(A, b, groups, group_weights, var_weights, var_weights_L1, u, z, lambda1, lambda2, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_spglasso_cov
+Rcpp::List admm_spglasso_cov(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, arma::colvec& u, arma::colvec& z, const double lambda1, const double lambda2, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spglasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambda1SEXP, SEXP lambda2SEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda1(lambda1SEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
@@ -509,28 +559,752 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// admm_spglasso_fast
+Rcpp::List admm_spglasso_fast(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, const arma::vec& lambda, const double alpha, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spglasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spglasso_fast(A, b, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_spglasso_cov_fast
+Rcpp::List admm_spglasso_cov_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, const arma::vec& lambda, const double alpha, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spglasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spglasso_cov_fast(W, Z, y, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_lasso
+Rcpp::List admm_lasso(const arma::mat& A, const arma::colvec& b, arma::colvec& u, arma::colvec& z, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_lasso(SEXP ASEXP, SEXP bSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_lasso(A, b, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_lasso_cov
+Rcpp::List admm_lasso_cov(const arma::mat& W, const arma::mat& Z, const arma::colvec& y, arma::colvec& u, arma::colvec& z, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_lasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_lasso_cov(W, Z, y, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_adalasso
+Rcpp::List admm_adalasso(const arma::mat& A, const arma::colvec& b, const arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_adalasso(SEXP ASEXP, SEXP bSEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_adalasso(A, b, var_weights, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_adalasso_cov
+Rcpp::List admm_adalasso_cov(const arma::mat& W, const arma::mat& Z, const arma::colvec& y, const arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_adalasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_adalasso_cov(W, Z, y, var_weights, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_lasso_fast
+Rcpp::List admm_lasso_fast(const arma::mat& A, const arma::vec& b, const arma::vec& lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_lasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_lasso_fast(A, b, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_lasso_cov_fast
+Rcpp::List admm_lasso_cov_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::vec& lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_lasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_lasso_cov_fast(W, Z, y, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_adalasso_fast
+Rcpp::List admm_adalasso_fast(const arma::mat& A, const arma::vec& b, const arma::vec& var_weights, const arma::vec lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_adalasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_adalasso_fast(A, b, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_adalasso_cov_fast
+Rcpp::List admm_adalasso_cov_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::vec& var_weights, const arma::vec& lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_adalasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_adalasso_cov_fast(W, Z, y, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso
+Rcpp::List admm_ovglasso(const arma::mat& A, const arma::colvec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso(A, b, groups, group_weights, var_weights, u, z, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_smo
+Rcpp::List admm_ovglasso_smo(const arma::mat& A, const arma::colvec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, arma::colvec& u, arma::colvec& z, const double lambda, const double lambda2, const int diff_order, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_smo(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_smo(A, b, groups, group_weights, var_weights, u, z, lambda, lambda2, diff_order, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_cov
+Rcpp::List admm_ovglasso_cov(const arma::mat& W, const arma::mat& Z, const arma::vec& y, arma::colvec& u, arma::colvec& z, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const double lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_cov(W, Z, y, u, z, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_cov_smo
+Rcpp::List admm_ovglasso_cov_smo(const arma::mat& W, const arma::mat& Z, const arma::vec& y, arma::colvec& u, arma::colvec& z, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const double lambda, const double lambda2, const int diff_order, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_cov_smo(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_cov_smo(W, Z, y, u, z, groups, group_weights, var_weights, lambda, lambda2, diff_order, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_fast
+Rcpp::List admm_ovglasso_fast(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_fast(A, b, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_smo_fast
+Rcpp::List admm_ovglasso_smo_fast(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& lambda, const arma::vec& lambda2, const int diff_order, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_smo_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_smo_fast(A, b, groups, group_weights, var_weights, lambda, lambda2, diff_order, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_cov_fast
+Rcpp::List admm_ovglasso_cov_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& lambda, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_cov_fast(W, Z, y, groups, group_weights, var_weights, lambda, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_ovglasso_cov_smo_fast
+Rcpp::List admm_ovglasso_cov_smo_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& lambda, const arma::vec& lambda2, const int diff_order, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_ovglasso_cov_smo_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP lambdaSEXP, SEXP lambda2SEXP, SEXP diff_orderSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const int >::type diff_order(diff_orderSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_ovglasso_cov_smo_fast(W, Z, y, groups, group_weights, var_weights, lambda, lambda2, diff_order, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_spovglasso
+Rcpp::List admm_spovglasso(const arma::mat& A, const arma::colvec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, arma::colvec& u, arma::colvec& z, const double lambda, const double alpha, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spovglasso(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP uSEXP, SEXP zSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spovglasso(A, b, groups, group_weights, var_weights, var_weights_L1, u, z, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_spovglasso_cov
+Rcpp::List admm_spovglasso_cov(const arma::mat& W, const arma::mat& Z, const arma::vec& y, arma::colvec& u, arma::colvec& z, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, const double lambda, const double alpha, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spovglasso_cov(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP uSEXP, SEXP zSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spovglasso_cov(W, Z, y, u, z, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_spovglasso_fast
+Rcpp::List admm_spovglasso_fast(const arma::mat& A, const arma::vec& b, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, const arma::vec& lambda, const double alpha, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spovglasso_fast(SEXP ASEXP, SEXP bSEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spovglasso_fast(A, b, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// admm_spovglasso_cov_fast
+Rcpp::List admm_spovglasso_cov_fast(const arma::mat& W, const arma::mat& Z, const arma::vec& y, const arma::mat& groups, const arma::vec& group_weights, const arma::vec& var_weights, const arma::vec& var_weights_L1, const arma::vec& lambda, const double alpha, const bool rho_adaptation, double rho, const double tau, const double mu, const double reltol, const double abstol, const int maxiter, const int ping);
+RcppExport SEXP _fdaSP_admm_spovglasso_cov_fast(SEXP WSEXP, SEXP ZSEXP, SEXP ySEXP, SEXP groupsSEXP, SEXP group_weightsSEXP, SEXP var_weightsSEXP, SEXP var_weights_L1SEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP rho_adaptationSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP muSEXP, SEXP reltolSEXP, SEXP abstolSEXP, SEXP maxiterSEXP, SEXP pingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type groups(groupsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type group_weights(group_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights(var_weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type var_weights_L1(var_weights_L1SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rho_adaptation(rho_adaptationSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type reltol(reltolSEXP);
+    Rcpp::traits::input_parameter< const double >::type abstol(abstolSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type ping(pingSEXP);
+    rcpp_result_gen = Rcpp::wrap(admm_spovglasso_cov_fast(W, Z, y, groups, group_weights, var_weights, var_weights_L1, lambda, alpha, rho_adaptation, rho, tau, mu, reltol, abstol, maxiter, ping));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forward_diff
+arma::vec forward_diff(const arma::vec& f, const double h, const int d);
+RcppExport SEXP _fdaSP_forward_diff(SEXP fSEXP, SEXP hSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type f(fSEXP);
+    Rcpp::traits::input_parameter< const double >::type h(hSEXP);
+    Rcpp::traits::input_parameter< const int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(forward_diff(f, h, d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forward_diff_penalty_matrix
+arma::mat forward_diff_penalty_matrix(const int n, const double h, const int d);
+RcppExport SEXP _fdaSP_forward_diff_penalty_matrix(SEXP nSEXP, SEXP hSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const double >::type h(hSEXP);
+    Rcpp::traits::input_parameter< const int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(forward_diff_penalty_matrix(n, h, d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forward_diff_difference_matrix
+arma::mat forward_diff_difference_matrix(const int n, const double h, const int d);
+RcppExport SEXP _fdaSP_forward_diff_difference_matrix(SEXP nSEXP, SEXP hSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const double >::type h(hSEXP);
+    Rcpp::traits::input_parameter< const int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(forward_diff_difference_matrix(n, h, d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// svd_check
+int svd_check(const arma::mat& X, arma::mat& U, arma::mat& V, arma::vec& s);
+RcppExport SEXP _fdaSP_svd_check(SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type U(USEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type V(VSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type s(sSEXP);
+    rcpp_result_gen = Rcpp::wrap(svd_check(X, U, V, s));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pseudoinv
+arma::mat pseudoinv(const arma::mat& X);
+RcppExport SEXP _fdaSP_pseudoinv(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(pseudoinv(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_ols
+arma::vec lm_ols(const arma::mat& X, const arma::vec& y);
+RcppExport SEXP _fdaSP_lm_ols(SEXP XSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_ols(X, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_ols_fast
+arma::vec lm_ols_fast(const arma::mat& XTX_CHOL, const arma::vec& XTy);
+RcppExport SEXP _fdaSP_lm_ols_fast(SEXP XTX_CHOLSEXP, SEXP XTySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type XTX_CHOL(XTX_CHOLSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type XTy(XTySEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_ols_fast(XTX_CHOL, XTy));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_ols_FWL
+Rcpp::List lm_ols_FWL(const arma::mat& X, const arma::mat& Z, const arma::vec& y);
+RcppExport SEXP _fdaSP_lm_ols_FWL(SEXP XSEXP, SEXP ZSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_ols_FWL(X, Z, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lm_ols_FWL_fast
+Rcpp::List lm_ols_FWL_fast(const arma::mat& L_ZZ, const arma::mat& L_XMX, const arma::mat& P_ZX, const arma::mat& XMy, const arma::vec& Zy);
+RcppExport SEXP _fdaSP_lm_ols_FWL_fast(SEXP L_ZZSEXP, SEXP L_XMXSEXP, SEXP P_ZXSEXP, SEXP XMySEXP, SEXP ZySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type L_ZZ(L_ZZSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L_XMX(L_XMXSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type P_ZX(P_ZXSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type XMy(XMySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Zy(ZySEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_ols_FWL_fast(L_ZZ, L_XMX, P_ZX, XMy, Zy));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gennorm
+double gennorm(const arma::vec& x, const int type);
+RcppExport SEXP _fdaSP_gennorm(SEXP xSEXP, SEXP typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const int >::type type(typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(gennorm(x, type));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fdaSP_admm_lasso", (DL_FUNC) &_fdaSP_admm_lasso, 13},
-    {"_fdaSP_admm_adalasso", (DL_FUNC) &_fdaSP_admm_adalasso, 14},
+    {"_fdaSP_glasso_Gmat2Fmat_sparse", (DL_FUNC) &_fdaSP_glasso_Gmat2Fmat_sparse, 2},
+    {"_fdaSP_ovglasso_Gmat2Fmat_sparse", (DL_FUNC) &_fdaSP_ovglasso_Gmat2Fmat_sparse, 2},
+    {"_fdaSP_lm_dof_LASSO_1lambda", (DL_FUNC) &_fdaSP_lm_dof_LASSO_1lambda, 9},
+    {"_fdaSP_lm_dof_OVGLASSO_1lambda", (DL_FUNC) &_fdaSP_lm_dof_OVGLASSO_1lambda, 12},
+    {"_fdaSP_lm_cov_dof_OVGLASSO_1lambda", (DL_FUNC) &_fdaSP_lm_cov_dof_OVGLASSO_1lambda, 13},
+    {"_fdaSP_lm_adaptive_dof_OVGLASSO_1lambda", (DL_FUNC) &_fdaSP_lm_adaptive_dof_OVGLASSO_1lambda, 13},
+    {"_fdaSP_lm_cov_adaptive_dof_OVGLASSO_1lamba", (DL_FUNC) &_fdaSP_lm_cov_adaptive_dof_OVGLASSO_1lamba, 14},
+    {"_fdaSP_f2s_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_dof_1lambda, 12},
+    {"_fdaSP_f2s_cov_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_cov_dof_1lambda, 13},
+    {"_fdaSP_f2s_smo_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_smo_dof_1lambda, 14},
+    {"_fdaSP_f2s_cov_smo_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_cov_smo_dof_1lambda, 15},
+    {"_fdaSP_f2s_adaptive_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_adaptive_dof_1lambda, 13},
+    {"_fdaSP_f2s_cov_adaptive_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_cov_adaptive_dof_1lambda, 14},
+    {"_fdaSP_f2s_smo_adaptive_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_smo_adaptive_dof_1lambda, 15},
+    {"_fdaSP_f2s_adaptive_cov_smo_dof_1lambda", (DL_FUNC) &_fdaSP_f2s_adaptive_cov_smo_dof_1lambda, 16},
+    {"_fdaSP_f2s_bic", (DL_FUNC) &_fdaSP_f2s_bic, 4},
+    {"_fdaSP_f2s_cov_bic", (DL_FUNC) &_fdaSP_f2s_cov_bic, 6},
+    {"_fdaSP_f2s_ebic", (DL_FUNC) &_fdaSP_f2s_ebic, 5},
+    {"_fdaSP_f2s_cov_ebic", (DL_FUNC) &_fdaSP_f2s_cov_ebic, 7},
     {"_fdaSP_admm_glasso", (DL_FUNC) &_fdaSP_admm_glasso, 16},
-    {"_fdaSP_admm_spglasso", (DL_FUNC) &_fdaSP_admm_spglasso, 18},
-    {"_fdaSP_admm_ovglasso", (DL_FUNC) &_fdaSP_admm_ovglasso, 16},
-    {"_fdaSP_admm_lasso_fast", (DL_FUNC) &_fdaSP_admm_lasso_fast, 11},
-    {"_fdaSP_admm_glasso_fast", (DL_FUNC) &_fdaSP_admm_glasso_fast, 14},
-    {"_fdaSP_admm_spglasso_fast", (DL_FUNC) &_fdaSP_admm_spglasso_fast, 16},
-    {"_fdaSP_admm_ovglasso_fast", (DL_FUNC) &_fdaSP_admm_ovglasso_fast, 14},
-    {"_fdaSP_admm_adalasso_fast", (DL_FUNC) &_fdaSP_admm_adalasso_fast, 12},
-    {"_fdaSP_admm_lasso_cov_fast", (DL_FUNC) &_fdaSP_admm_lasso_cov_fast, 12},
-    {"_fdaSP_admm_glasso_cov_fast", (DL_FUNC) &_fdaSP_admm_glasso_cov_fast, 15},
-    {"_fdaSP_admm_ovglasso_cov_fast", (DL_FUNC) &_fdaSP_admm_ovglasso_cov_fast, 15},
-    {"_fdaSP_admm_adalasso_cov_fast", (DL_FUNC) &_fdaSP_admm_adalasso_cov_fast, 13},
-    {"_fdaSP_admm_spglasso_cov_fast", (DL_FUNC) &_fdaSP_admm_spglasso_cov_fast, 17},
-    {"_fdaSP_admm_lasso_cov", (DL_FUNC) &_fdaSP_admm_lasso_cov, 14},
     {"_fdaSP_admm_glasso_cov", (DL_FUNC) &_fdaSP_admm_glasso_cov, 17},
-    {"_fdaSP_admm_ovglasso_cov", (DL_FUNC) &_fdaSP_admm_ovglasso_cov, 17},
-    {"_fdaSP_admm_adalasso_cov", (DL_FUNC) &_fdaSP_admm_adalasso_cov, 15},
+    {"_fdaSP_admm_glasso_fast", (DL_FUNC) &_fdaSP_admm_glasso_fast, 14},
+    {"_fdaSP_admm_glasso_cov_fast", (DL_FUNC) &_fdaSP_admm_glasso_cov_fast, 15},
+    {"_fdaSP_admm_spglasso", (DL_FUNC) &_fdaSP_admm_spglasso, 18},
     {"_fdaSP_admm_spglasso_cov", (DL_FUNC) &_fdaSP_admm_spglasso_cov, 19},
+    {"_fdaSP_admm_spglasso_fast", (DL_FUNC) &_fdaSP_admm_spglasso_fast, 16},
+    {"_fdaSP_admm_spglasso_cov_fast", (DL_FUNC) &_fdaSP_admm_spglasso_cov_fast, 17},
+    {"_fdaSP_admm_lasso", (DL_FUNC) &_fdaSP_admm_lasso, 13},
+    {"_fdaSP_admm_lasso_cov", (DL_FUNC) &_fdaSP_admm_lasso_cov, 14},
+    {"_fdaSP_admm_adalasso", (DL_FUNC) &_fdaSP_admm_adalasso, 14},
+    {"_fdaSP_admm_adalasso_cov", (DL_FUNC) &_fdaSP_admm_adalasso_cov, 15},
+    {"_fdaSP_admm_lasso_fast", (DL_FUNC) &_fdaSP_admm_lasso_fast, 11},
+    {"_fdaSP_admm_lasso_cov_fast", (DL_FUNC) &_fdaSP_admm_lasso_cov_fast, 12},
+    {"_fdaSP_admm_adalasso_fast", (DL_FUNC) &_fdaSP_admm_adalasso_fast, 12},
+    {"_fdaSP_admm_adalasso_cov_fast", (DL_FUNC) &_fdaSP_admm_adalasso_cov_fast, 13},
+    {"_fdaSP_admm_ovglasso", (DL_FUNC) &_fdaSP_admm_ovglasso, 16},
+    {"_fdaSP_admm_ovglasso_smo", (DL_FUNC) &_fdaSP_admm_ovglasso_smo, 18},
+    {"_fdaSP_admm_ovglasso_cov", (DL_FUNC) &_fdaSP_admm_ovglasso_cov, 17},
+    {"_fdaSP_admm_ovglasso_cov_smo", (DL_FUNC) &_fdaSP_admm_ovglasso_cov_smo, 19},
+    {"_fdaSP_admm_ovglasso_fast", (DL_FUNC) &_fdaSP_admm_ovglasso_fast, 14},
+    {"_fdaSP_admm_ovglasso_smo_fast", (DL_FUNC) &_fdaSP_admm_ovglasso_smo_fast, 16},
+    {"_fdaSP_admm_ovglasso_cov_fast", (DL_FUNC) &_fdaSP_admm_ovglasso_cov_fast, 15},
+    {"_fdaSP_admm_ovglasso_cov_smo_fast", (DL_FUNC) &_fdaSP_admm_ovglasso_cov_smo_fast, 17},
+    {"_fdaSP_admm_spovglasso", (DL_FUNC) &_fdaSP_admm_spovglasso, 18},
+    {"_fdaSP_admm_spovglasso_cov", (DL_FUNC) &_fdaSP_admm_spovglasso_cov, 19},
+    {"_fdaSP_admm_spovglasso_fast", (DL_FUNC) &_fdaSP_admm_spovglasso_fast, 16},
+    {"_fdaSP_admm_spovglasso_cov_fast", (DL_FUNC) &_fdaSP_admm_spovglasso_cov_fast, 17},
+    {"_fdaSP_forward_diff", (DL_FUNC) &_fdaSP_forward_diff, 3},
+    {"_fdaSP_forward_diff_penalty_matrix", (DL_FUNC) &_fdaSP_forward_diff_penalty_matrix, 3},
+    {"_fdaSP_forward_diff_difference_matrix", (DL_FUNC) &_fdaSP_forward_diff_difference_matrix, 3},
+    {"_fdaSP_svd_check", (DL_FUNC) &_fdaSP_svd_check, 4},
+    {"_fdaSP_pseudoinv", (DL_FUNC) &_fdaSP_pseudoinv, 1},
+    {"_fdaSP_lm_ols", (DL_FUNC) &_fdaSP_lm_ols, 2},
+    {"_fdaSP_lm_ols_fast", (DL_FUNC) &_fdaSP_lm_ols_fast, 2},
+    {"_fdaSP_lm_ols_FWL", (DL_FUNC) &_fdaSP_lm_ols_FWL, 3},
+    {"_fdaSP_lm_ols_FWL_fast", (DL_FUNC) &_fdaSP_lm_ols_FWL_fast, 5},
+    {"_fdaSP_gennorm", (DL_FUNC) &_fdaSP_gennorm, 2},
     {NULL, NULL, 0}
 };
 

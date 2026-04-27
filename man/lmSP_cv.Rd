@@ -9,7 +9,7 @@ lmSP_cv(
   Z = NULL,
   y,
   penalty = c("LASSO", "GLASSO", "spGLASSO", "OVGLASSO", "spOVGLASSO"),
-  groups,
+  groups = NULL,
   group_weights = NULL,
   var_weights = NULL,
   var_weights_L1 = NULL,
@@ -79,6 +79,7 @@ It is provided only when either the matrix \eqn{Z} in input is not NULL or the i
 \item{convergence}{logical. 1 denotes achieved convergence.}
 \item{elapsedTime}{elapsed time in seconds.}
 \item{iternum}{number of iterations.}
+\item{foldid}{a vector of values between 1 and cv.fold identifying what fold each observation is in.}
 }
 
 When you run the algorithm, output returns not only the solution, but also the iteration history recording

@@ -358,7 +358,11 @@ linreg_ADMM_GLASSO_cv <- function(X, Z = NULL, y, groups, group_weights = NULL, 
       mSpRegP_     <- ret$coef.path
       fit          <- X.std[ret.gr$groups.pred[[kt]],] %*% t(mSpRegP_)
     } else {
-      mZ_ <- Z[ret.gr$groups.cv[[kt]],]
+      if (dim(Z)[2] > 1) {
+        mZ_ <- Z[ret.gr$groups.cv[[kt]],]
+      } else {
+        mZ_ <- matrix(Z[ret.gr$groups.cv[[kt]],], nrow = length(ret.gr$groups.cv[[kt]]), ncol = 1)
+      }
       ret <- .admm_glasso_cov_fast(W = mX_, Z = mZ_, y = vY_,
                                    groups = GRmat, group_weights = group_weights, var_weights = var_weights,
                                    lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,

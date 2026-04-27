@@ -5,7 +5,7 @@
 #      	   35121 PADOVA, Italy
 #          E-mail: mauro.bernardi@unipd.it  
 
-# Last change: March 16, 2023
+# Last change: October 21, 2025
 
 
 #' Overlap Group Least Absolute Shrinkage and Selection Operator
@@ -217,6 +217,8 @@ linreg_ADMM_OVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, v
                  rho                  = 1, 
                  tau.ada              = 2,               
                  mu.ada               = 10,
+                 dof.toler_c          = 5,
+                 dof.toler_d          = 0.001,
                  print.out            = TRUE)
   
   nmsC                          <- names(con)
@@ -232,6 +234,8 @@ linreg_ADMM_OVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, v
   rho        <- con$rho
   tau.ada    <- con$tau.ada      
   mu.ada     <- con$mu.ada
+  toler_c    <- con$dof.toler_c
+  toler_d    <- con$dof.toler_d
   print.out  <- con$print.out
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -335,12 +339,7 @@ linreg_ADMM_OVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, v
     ret <- .admm_ovglasso_fast(A = X.std, b = y.std, groups = GRmat, group_weights = group_weights, var_weights = var_weights,
                                lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
                                reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
-    # ret <- .Call("admm_ovglasso_fast", 
-    #              A = X.std, b = y.std, groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-    #              lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
-    #              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
+                               
     # get estimated coefficients and path
     mSpRegP <- t(ret$coef.path)
     vSpRegP <- ret$coefficients
@@ -349,13 +348,7 @@ linreg_ADMM_OVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, v
                                    groups = GRmat, group_weights = group_weights, var_weights = var_weights, 
                                    lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
                                    reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
-    # ret <- .Call("admm_ovglasso_cov_fast",
-    #              W = X.std, Z = Z, y = y.std,
-    #              groups = GRmat, group_weights = group_weights, var_weights = var_weights, 
-    #              lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
-    #              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
-    
+                                   
     # get estimated coefficients and path
     mSpRegP <- t(ret$sp.coef.path)
     mRegP   <- t(ret$coef.path)
@@ -409,29 +402,29 @@ linreg_ADMM_OVGLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, v
                  "s_norm",
                  "err_pri",
                  "err_dual",
-                 "rho") 
+                 "rho")
   res        <- vector(mode = "list", length = length(res.names))
   names(res) <- res.names
   if (!is.null(Z)) {
     res$coefficients <- vRegP
     res$coef.path    <- path
   } 
-  res$sp.coefficients <- vSpRegP
-  res$sp.coef.path    <- sp.path
-  res$lambda.min      <- ret$lambda.min
-  res$lambda          <- ret$lambda
-  res$mse             <- ret$mse
-  res$min.mse         <- ret$min.mse
-  res$convergence     <- ret$convergence
-  res$elapsedTime     <- ret$elapsedTime
-  res$iternum         <- ret$iternum
-  res$objfun          <- ret$objfun
-  res$r_norm          <- ret$r_norm
-  res$s_norm          <- ret$s_norm
-  res$err_pri         <- ret$err_pri
-  res$err_dual        <- ret$err_dual
-  res$rho             <- ret$rho
-
+  res$sp.coefficients   <- vSpRegP
+  res$sp.coef.path      <- sp.path
+  res$lambda.min        <- ret$lambda.min
+  res$lambda            <- ret$lambda
+  res$mse               <- ret$mse
+  res$min.mse           <- ret$min.mse
+  res$convergence       <- ret$convergence
+  res$elapsedTime       <- ret$elapsedTime
+  res$iternum           <- ret$iternum
+  res$objfun            <- ret$objfun
+  res$r_norm            <- ret$r_norm
+  res$s_norm            <- ret$s_norm
+  res$err_pri           <- ret$err_pri
+  res$err_dual          <- ret$err_dual
+  res$rho               <- ret$rho
+  
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output
   return(res)

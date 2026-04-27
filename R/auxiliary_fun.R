@@ -79,6 +79,9 @@ check_param_integer <- function(num, lowerbound=0){
 
 check_weights <- function(x, n, algname, funname) {
   if (!is.null(x)) {
+    if (any(is.na(x))) {
+      stop(paste0("*", algname, " : the vector ", funname, " has missing values."))
+    }
     if (!is.numeric(x)) {
       stop(paste0("*", algname, " : the vector ", funname, " is not a numeric vector."))
     }
@@ -93,6 +96,9 @@ check_weights <- function(x, n, algname, funname) {
 
 check_group_weights <- function(x, n, algname, funname) {
   if (!is.null(x)) {
+    if (any(is.na(x))) {
+      stop(paste0("*", algname, " : the vector ", funname, " has missing values."))
+    }
     if (!is.numeric(x)) {
       stop(paste0("*", algname, " : the vector ", funname, " is not a numeric vector."))
     }
@@ -398,6 +404,202 @@ fSet2GivenTolerance <- function(x, n, toler) {
   return(y)
 }
 
+f2s_reg_RIDGE <- function(y, Z = NULL, X, diff_order = 1, lambda, lambda2 = 0.0) {
+  
+  # get dimensions
+  n <- dim(X)[1]
+  p <- dim(X)[2]
+  if (!is.null(Z)) {
+    q <- dim(Z)[2]
+  }
 
+  # output returned in case of no valid options
+  output <- NULL
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # both lambdas are NOT NULL
+  if (!is.null(lambda) && !is.null(lambda2)) {
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # both lambdas are single values
+    if ((length(lambda) == 1) && (length(lambda2) == 1)) {
+      meps     <- (.Machine$double.eps)
+      negsmall <- -meps
+      
+      # check lambda
+      if (!check_param_constant(lambda, negsmall)) {
+        stop("* f2sSP : parameter 'lambda' is invalid.")
+      }
+      # check lambda2
+      if (!check_param_constant(lambda2, negsmall)) {
+        stop("* f2sSP : parameter 'lambda2' is invalid.")
+      }
+      
+      # case 1: lambdas parameters are single values, both equal to zero, OLS solution
+      if ((lambda < meps) && (lambda2 < meps)) {
+        message("* f2sSP : since 'lambda' and 'lambda2' are effectively zero, a least-squares solution is returned.")
+        if (is.null(Z)) {
+          xsol <- as.vector(aux_pinv(X) %*% matrix(y))
+          dof  <- p
+        } else {
+          xsol <- as.vector(aux_pinv(cbind(X, Z)) %*% matrix(y))
+          dof  <- p + q
+        }
+        # get output
+        sp.coef.path <- xsol[1:p]
+        if (!is.null(Z)) {
+          coef.path        <- xsol[(p+1):(p+q)]
+          output$coef.path <- coef.path
+        }
+        output$sp.coef.path <- sp.coef.path
+      }
+      # case 2: lambdas parameters are single values
+      #         lambda is zero and lambda2 in NOT zero: RIDGE solution
+      if ((lambda < meps) && (lambda2 >= meps)) {
+        message("* f2sSP : since 'lambda' is effectively zero but 'lambda2' is not, a RIDGE solution is returned.")
+        if (!is.null(Z)) {
+          R_          <- .forward_diff_penalty_matrix(n = p, h = 1, d = diff_order)
+          R           <- matrix(data = 0, nrow = p + q, p + q)
+          R[1:p, 1:p] <- R_
+          xsol        <- as.vector(solve(crossprod(cbind(X, Z)) + lambda2 * R) %*% crossprod(cbind(X, Z), y))
+
+          # compute DoF
+          C   <- cbind(X, Z)
+          S   <- solve(crossprod(C) + lambda2 * R) %*% crossprod(C)
+          dof <- sum(diag(S)) 
+        } else {
+          R    <- .forward_diff_penalty_matrix(n = p, h = 1, d = diff_order)
+          xsol <- as.vector(solve(crossprod(X) + lambda2 * R) %*% crossprod(X, y))
+  
+          # compute DoF
+          S   <- solve(crossprod(X) + lambda2 * R) %*% crossprod(X)
+          dof <- sum(diag(S)) 
+        }
+        # get output
+        sp.coef.path <- xsol[1:p]
+        if (!is.null(Z)) {
+          coef.path        <- xsol[(p+1):(p+q)]
+          output$coef.path <- coef.path
+        }
+        output$sp.coef.path <- sp.coef.path
+      }
+    } else if ((length(lambda) == 1) && (length(lambda2) > 1)) {
+      # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      # both lambda is a single value while lambda2 is not
+      message("* f2sSP : since 'lambda' is effectively zero, a RIDGE solution is returned.")
+      meps     <- (.Machine$double.eps)
+      negsmall <- -meps
+      
+      # check lambda
+      if (!check_param_constant(lambda, negsmall)) {
+        stop("* f2sSP : parameter 'lambda' is invalid.")
+      }
+      # case 1: lambda is zero
+      if (lambda < meps) {
+        message("* f2sSP : since 'lambda' is effectively zero, a least-squares solution is returned.")
+        # path over lambda2, OLS solution
+        if (is.null(Z)) {
+          R <- .forward_diff_penalty_matrix(n = p,
+                                            h = 1, d = diff_order)
+          Xsol <- matrix(data = 0, nrow = p, ncol = length(lambda2))
+          dof  <- rep(0, length(lambda2))
+          for (j in 1:length(lambda2)) {
+            Xsol[, j] <- as.vector(solve(crossprod(X) +
+                                           lambda2[j] * R) %*% crossprod(X, y))
+            
+            # compute DoF (ols path lambda2)
+            S      <- solve(crossprod(X) + lambda2[j] * R) %*% crossprod(X)
+            dof[j] <- sum(diag(S)) 
+          }
+          # get output
+          sp.coef.path        <- Xsol[1:p,]
+          output$sp.coef.path <- sp.coef.path
+        } else {
+          # path over lambda2, RIDGE solution
+          R_ <- .forward_diff_penalty_matrix(n = p,
+                                             h = 1,
+                                             d = diff_order)
+          R           <- matrix(data = 0, nrow = p + q, p + q)
+          R[1:p, 1:p] <- R_
+          Xsol        <- matrix(data = 0, nrow = p + q, ncol = length(lambda2))
+          dof         <- rep(0, length(lambda2))
+          for (j in 1:length(lambda2)) {
+            Xsol[, j] <- as.vector(solve(crossprod(cbind(X, Z)) +
+                                           lambda2[j] * R) %*% crossprod(cbind(X, Z), y))
+            
+            # compute DoF
+            C      <- cbind(X, Z)
+            S      <- solve(crossprod(C) + lambda2[j] * R) %*% crossprod(C)
+            dof[j] <- sum(diag(S)) 
+          }
+          # get output
+          sp.coef.path        <- Xsol[1:p,]
+          coef.path           <- Xsol[(p+1):(q+p),]
+          output$coef.path    <- coef.path
+          output$sp.coef.path <- sp.coef.path
+        }
+      }
+    }
+  }
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # retrieve MSE
+  if (!is.null(output)) {
+    if (!is.null( Z)) { 
+      # get estimated coefficients
+      mSpRegP <- sp.coef.path
+      mRegP   <- coef.path
+      
+      # get MSE
+      fitted    <- X %*% mSpRegP + Z %*% mRegP
+      residuals <- apply(X = fitted, MARGIN = 2, FUN = function(x){x-y})
+      mse       <- diag(crossprod(residuals)) / n
+      mse.min   <- which.min(mse)
+      
+      # get estimated parameters at max MSE
+      if (length(lambda2) > 1) {
+        vSpRegP <- mSpRegP[,mse.min]
+        vRegP   <- mRegP[mse.min]
+      } else {
+        vSpRegP <- mSpRegP
+        vRegP   <- mRegP
+      }
+    
+      # get output
+      output$vSpRegP      <- vSpRegP
+      output$vRegP        <- vRegP
+      output$mse          <- mse
+      output$min.mse      <- mse.min
+      output$dof          <- dof
+    } else {
+      # get estimated coefficients
+      mSpRegP <- sp.coef.path
+      
+      # get MSE
+      fitted    <- X %*% mSpRegP
+      residuals <- apply(X = fitted, MARGIN = 2, FUN = function(x){x-y})
+      mse       <- diag(crossprod(residuals)) / n
+      mse.min   <- which.min(mse)
+    
+      # get estimated parameters at max MSE
+      if (length(lambda2) > 1) {
+        vSpRegP <- mSpRegP[,mse.min]
+      } else {
+        vSpRegP <- mSpRegP
+      }
+      
+      # get output
+      output$vSpRegP      <- vSpRegP
+      output$mse          <- mse
+      output$min.mse      <- mse.min
+      output$dof          <- dof
+    }
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # compute the BIC
+    output$bic <- n * log(mse) + dof * log(n) 
+  }
+  
+  # return output
+  return(output)
+}
 
 

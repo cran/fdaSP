@@ -1,5 +1,25 @@
+#
+## last update: 30 september 2025
+#
+
+#
+## Description: compute the lambda max for linear regression 
+##              model with several Lasso-type penalties
+#
+
+# Functions: 
+#
+#           1. lm_lambdamax_LASSO
+#           2. lm_lambdamax_ADLASSO
+#           3. lm_lambdamax_GLASSO
+#           4. lm_lambdamax_spGLASSO
+#           5. lm_lambdamax_OVGLASSO
+#           6. lm_lambdamax
+
 #' @keywords internal
-lm_lambdamax_LASSO <- function(y, X, Z = NULL, lambda.min.ratio = NULL, maxl = NULL) {
+lm_lambdamax_LASSO <- function(y, X, Z = NULL, 
+                               lambda.min.ratio = NULL, 
+                               maxl = NULL) {
   
   # :::::::::::::::::::::::::::::::::::::::::::
   # check maxl
@@ -46,7 +66,10 @@ lm_lambdamax_LASSO <- function(y, X, Z = NULL, lambda.min.ratio = NULL, maxl = N
 
 #' @keywords internal
 #' @export
-lm_lambdamax_ADALASSO <- function(y, X, Z = NULL, var_weights = NULL, lambda.min.ratio = NULL, maxl = NULL) {
+lm_lambdamax_ADALASSO <- function(y, X, Z = NULL, 
+                                  var_weights = NULL, 
+                                  lambda.min.ratio = NULL, 
+                                  maxl = NULL) {
   
   # :::::::::::::::::::::::::::::::::::::::::::
   # check maxl
@@ -67,7 +90,7 @@ lm_lambdamax_ADALASSO <- function(y, X, Z = NULL, var_weights = NULL, lambda.min
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # standardize data (to account adaptive weights)
-  X_ <- X %*% diag(1.0 /var_weights)
+  X_ <- X %*% diag(1.0 / var_weights)
   
   # :::::::::::::::::::::::::::::::::::::::::::
   # get the lambda max for LASSO
@@ -106,7 +129,13 @@ lm_lambdamax_ADALASSO <- function(y, X, Z = NULL, var_weights = NULL, lambda.min
 
 #' @keywords internal
 #' @export
-lm_lambdamax_GLASSO <- function(y, X, Z = NULL, groups = NULL, GRmat = NULL, group_weights = NULL, var_weights = NULL, lambda.min.ratio = NULL, maxl = NULL) {
+lm_lambdamax_GLASSO <- function(y, X, Z = NULL, 
+                                groups = NULL, 
+                                GRmat = NULL, 
+                                group_weights = NULL, 
+                                var_weights = NULL, 
+                                lambda.min.ratio = NULL, 
+                                maxl = NULL) {
   
   # :::::::::::::::::::::::::::::::::::::::::::
   # check maxl
@@ -204,7 +233,8 @@ lm_lambdamax_GLASSO <- function(y, X, Z = NULL, groups = NULL, GRmat = NULL, gro
 
 #' @keywords internal
 #' @export
-spglasso_lambdamax_objfun <- function(x, X, y, alpha, gwei) {
+spglasso_lambdamax_objfun <- function(x, X, y, 
+                                      alpha, gwei) {
   
   # get dimensions
   n <- length(y)
@@ -342,7 +372,9 @@ lm_lambdamax_spGLASSO <- function(y, X, Z = NULL, groups, group_weights = NULL, 
 
 #' @keywords internal
 #' @export
-lm_lambdamax_GLASSO_yuan_lin_2006_JRSSB <- function(y, X, groups, lambda.min.ratio = NULL, maxl = NULL) {
+lm_lambdamax_GLASSO_yuan_lin_2006_JRSSB <- function(y, X, groups, 
+                                                    lambda.min.ratio = NULL, 
+                                                    maxl = NULL) {
   
   # :::::::::::::::::::::::::::::::::::::::::::
   # check maxl
@@ -453,29 +485,143 @@ lm_lambdamax_OVGLASSO <- function(y, X, Z = NULL, groups = NULL, GRmat = NULL,
   # Manage group weights
   if (is.null(group_weights)) {
     # Define the weights as in Yuan and Lin 2006, JRSSB
-    group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    #group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    # Modificata il 19 novembre 2024
+    group_weights <- rep(1, G)
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Manage variable weights
   if (is.null(var_weights)) {
-    var_weights <- 1.0 / colSums(GRmat)
+    var_weights <- 1.0 / sqrt(colSums(GRmat))
   }
   Tmat_INV <- diag(1.0 / var_weights)
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # standardize data (to account adaptive weights)
   X_ <- X %*% Tmat_INV
+  #X_ <- X 
   
   # :::::::::::::::::::::::::::::::::::::::::::
   # get the lambda max for Overlap Group LASSO
-  lambda_ <- NULL
-  for (g in 1:G) {
-    idx     <- which(GRmat[g, ] == 1) 
-    vXy_    <- as.numeric(crossprod(X_[,idx], y_))
-    lam     <- norm(vXy_, type = "2") / group_weights[g]
-    lambda_ <- c(lambda_, lam)
+  # lambda_ <- NULL
+  # for (g in 1:G) {
+  #   idx     <- which(GRmat[g, ] == 1) 
+  #   vXy_    <- as.numeric(crossprod(X_[,idx], y_))
+  #   lam     <- norm(vXy_, type = "2") / group_weights[g]
+  #   lambda_ <- c(lambda_, lam)
+  # }
+  # lambda.max <- max(lambda_)  / n
+  vXy_    <- as.numeric(crossprod(X_, y_))
+  lambda_ <- ovglasso_dual_norm_upper_bound(x = vXy_, 
+                                            groups = GRmat, 
+                                            weights = group_weights)
+  lambda.max <- lambda_ / n
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # get the lambda min for LASSO
+  if (is.null(lambda.min.ratio)) {
+    lambda.min.ratio <- ifelse(n < p, 0.01, 1e-04)
   }
+  lambda.min <- lambda.min.ratio * lambda.max
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # get the sequence of lambdas
+  lambda.seq <- logseq(from = lambda.max, to = lambda.min, length.out = maxl)
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # get output
+  res            <- NULL
+  res$lambda.min <- lambda.min
+  res$lambda.max <- lambda.max
+  res$lambda.seq <- lambda.seq
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # get output
+  return(res)
+}
+
+#' @keywords internal
+#' @export
+lm_lambdamax_spOVGLASSO <- function(y, X, Z = NULL, groups = NULL, GRmat = NULL, 
+                                    group_weights = NULL, var_weights = NULL, 
+                                    lambda.min.ratio = NULL, maxl = NULL) {
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # check maxl
+  if (is.null(maxl)) {
+    maxl <- 30
+  }
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # get the relevant quantities
+  n <- dim(X)[1]
+  p <- dim(X)[2]
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # manage the non-penalized covariates (Z)
+  if (is.null(Z)) {
+    y_ <- y
+  } else {
+    regp <- solve(crossprod(Z)) %*% crossprod(Z, y)
+    y_   <- y - Z %*% regp
+  } 
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # Manage groups
+  if (is.null(GRmat)) {
+    if (is.list(groups) && !is.null(groups$Glen)) {
+      nG      <- groups$Glen
+      groups_ <- groups$groups
+      GRmat   <- groups2mat_OVGLASSO(groups = groups_, Glen = nG)
+      GRmat   <- rbind(GRmat, diag(1, p))
+      G       <- dim(GRmat)[1]
+    } else {
+      groups_ <- groups
+      GRmat   <- groups2mat_OVGLASSO(groups = groups_, Glen = NULL)
+      GRmat   <- rbind(GRmat, diag(1, p))
+      G       <- dim(GRmat)[1]
+      nG      <- rowSums(GRmat)
+    }
+  } else {
+    G  <- dim(GRmat)[1]
+    nG <- rowSums(GRmat)
+  }
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # Manage group weights
+  if (is.null(group_weights)) {
+    # Define the weights as in Yuan and Lin 2006, JRSSB
+    #group_weights <- sqrt(diag(tcrossprod(GRmat)))
+    # Modificata il 19 novembre 2024
+    group_weights <- rep(1, G)
+  }
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # Manage variable weights
+  if (is.null(var_weights)) {
+    var_weights <- 1.0 / sqrt(colSums(GRmat))
+  }
+  Tmat_INV <- diag(1.0 / var_weights)
+  
+  # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # standardize data (to account adaptive weights)
+  X_ <- X %*% Tmat_INV
+  #X_ <- X
+  
+  # :::::::::::::::::::::::::::::::::::::::::::
+  # get the lambda max for Overlap Group LASSO
+  # lambda_ <- NULL
+  # for (g in 1:G) {
+  #   idx     <- which(GRmat[g, ] == 1) 
+  #   vXy_    <- as.numeric(crossprod(X_[,idx], y_))
+  #   lam     <- norm(vXy_, type = "2") / group_weights[g]
+  #   lambda_ <- c(lambda_, lam)
+  # }
+  # lambda.max <- max(lambda_)  / n
+  vXy_    <- as.numeric(crossprod(X_, y_))
+  lambda_ <- ovglasso_dual_norm_upper_bound(x = vXy_, 
+                                            groups = GRmat, 
+                                            weights = group_weights)
   lambda.max <- max(lambda_)  / n
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -503,9 +649,9 @@ lm_lambdamax_OVGLASSO <- function(y, X, Z = NULL, groups = NULL, GRmat = NULL,
 
 #' @keywords internal
 #' @export
-lambdamax <- function(method = c("lasso", "ovglasso"),
-                      y, X, p = NULL, q = NULL, groups = NULL, 
-                      lambda.min = NULL, maxl = NULL) {
+lm_lambdamax <- function(method = c("lasso", "ovglasso"),
+                         y, X, p = NULL, q = NULL, groups = NULL, 
+                         lambda.min = NULL, maxl = NULL) {
     
   # :::::::::::::::::::::::::::::::::::::::::::
   # check maxl
@@ -582,5 +728,45 @@ groups2mat_OVGLASSO <- function(groups, Glen = NULL) {
   }
   return(GRmat)
 }
-
-
+# Dual norm of overlap group-lasso via convex optimization
+#' @keywords internal
+matrix_to_groups <- function(GRmat) {
+  apply(GRmat, 1, function(row) which(row == 1))
+}
+#' @keywords internal
+#' @export
+ovglasso_dual_norm <- function(x, groups, weights = NULL) {
+  
+  # require library
+  #require(CVXR)
+  
+  # get dimensions
+  p <- length(x)
+  
+  # convert groups matrix to list
+  groups_list <- matrix_to_groups(groups)
+  
+  if (is.null(weights)) {
+    weights <- rep(1, length(groups_list))
+  }
+  
+  # primal variable
+  z <- CVXR::Variable(p)
+  
+  # define primal OGL norm
+  group_terms <- lapply(seq_along(groups_list), function(i) {
+    g <- groups_list[[i]]
+    w <- weights[i]
+    w * CVXR::norm2(z[g])
+  })
+  ogl_norm <- Reduce("+", group_terms)
+  
+  # dual norm = sup { <x,z> : Omega(z) <= 1 }
+  obj    <- CVXR::Maximize(t(x) %*% z)
+  constr <- list(ogl_norm <= 1)
+  prob   <- CVXR::Problem(obj, constr)
+  result <- CVXR::psolve(prob)
+  
+  # return output
+  return(result$value)
+}

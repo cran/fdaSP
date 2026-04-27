@@ -1,8 +1,8 @@
 Package: fdaSP
 Type: Package
 Title: Sparse Functional Data Analysis Methods
-Version: 1.1.1
-Date: 2023-09-12
+Version: 1.1.2
+Date: 2026-04-12
 Author: Mauro Bernardi [aut, cre],
   Marco Stefanucci [aut],
   Antonio Canale [ctb]
@@ -15,12 +15,12 @@ Description: Provides algorithms to fit linear regression models under several p
 License: GPL (>= 3)
 Suggests: RColorBrewer, gglasso, glmnet, latex2exp, utils
 Imports: Rcpp, Rdpack, grDevices, graphics, stats, parallel,
-        doParallel, foreach, splines, ks, pracma
+        doParallel, foreach, splines, ks, pracma, CVXR
 LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
-RoxygenNote: 7.2.3.9000
+RoxygenNote: 7.3.3
 RdMacros: Rdpack
 NeedsCompilation: yes
-Packaged: 2023-10-05 13:43:15 UTC; maurobernardi
+Packaged: 2026-04-27 16:30:56 UTC; maurobernardi
 Repository: CRAN
-Date/Publication: 2023-10-05 18:00:02 UTC
+Date/Publication: 2026-04-27 17:30:02 UTC

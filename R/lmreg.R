@@ -48,11 +48,15 @@
 #' for the group-Lasso penalty, 'spGLASSO', for the sparse group-Lasso penalty, 'OVGLASSO', 
 #' for the overlap group-Lasso penalty and 'spOVGLASSO', for the sparse overlap group-Lasso penalty.
 #' @param groups either a vector of length \eqn{p} of consecutive integers describing the grouping of the coefficients, 
-#' or a list with two elements: the first element is a vector of length \eqn{\sum_{g=1}^G n_g} containing the variables belonging to each group, where \eqn{n_g} is the cardinality of the \eqn{g}-th group, 
-#' while the second element is a vector of length \eqn{G} containing the group lengths (see example below).
+#' or a list with two elements: the first element 'groups' is a vector of length \eqn{\sum_{g=1}^G n_g} containing the variables belonging to each group, where \eqn{n_g} is the cardinality of the \eqn{g}-th group,
+#' while the second element 'Glen' is a vector of length \eqn{G} containing the group lengths (see example below).
 #' @param group_weights a vector of length \eqn{G} containing group-specific weights. The default is square root of the group cardinality, see Yuan and Lin (2006).
 #' @param var_weights a vector of length \eqn{p} containing variable-specific weights. The default is a vector of ones.
 #' @param var_weights_L1 a vector of length \eqn{p} containing variable-specific weights for the \eqn{L_1} penalty. The default is a vector of ones.
+#' @param weights_adaptive logical. If \code{TRUE}, adaptive weights are computed from an initial 
+#' least squares estimate. This option is ignored (and set to \code{FALSE}) when 
+#' \code{group_weights} are provided by the user, since external weights override the adaptive scheme.
+#' @param adaptive a flag for running adaptive Lasso. The default is FALSE.
 #' @param standardize.data logical. Should data be standardized?
 #' @param lambda either a regularization parameter or a vector of regularization parameters. In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.
 #' @param alpha the sparse overlap group-LASSO mixing parameter, with \eqn{0\leq\alpha\leq1}. This setting is only available for the sparse group-LASSO and the sparse overlap group-LASSO penalties, otherwise it is set to NULL. The LASSO and group-LASSO penalties are obtained
@@ -98,6 +102,8 @@
 #' \item{abstol}{absolute tolerance stopping criterion. The default value is sqrt(sqrt(.Machine$double.eps)).}
 #' \item{reltol}{relative tolerance stopping criterion. The default value is sqrt(.Machine$double.eps).}
 #' \item{maxit}{maximum number of iterations. The default value is 100.}
+#' \item{dof.toler_c}{numeric tolerance for identifying effective zeros in the degrees-of-freedom calculation. The default is 5.}
+#' \item{dof.toler_d}{numeric tolerance for identifying effective zeros in the degrees-of-freedom calculation. The default is 0.001.}
 #' \item{print.out}{logical. If it is TRUE, a message about the procedure is printed. The default value is TRUE.}
 #' }
 #' 
@@ -186,22 +192,90 @@
 #' 
 #' @export lmSP
 lmSP <- function(X, Z = NULL, y, penalty = c("LASSO", "GLASSO", "spGLASSO", "OVGLASSO", "spOVGLASSO"), 
-                 groups, group_weights = NULL, var_weights = NULL, var_weights_L1 = NULL, 
-                 standardize.data = TRUE, intercept = FALSE, overall.group = FALSE,
+                 groups = NULL, group_weights = NULL, var_weights = NULL, var_weights_L1 = NULL, weights_adaptive = FALSE,
+                 adaptive = FALSE, standardize.data = TRUE, intercept = FALSE, overall.group = FALSE,
                  lambda = NULL, alpha = NULL, lambda.min.ratio = NULL, nlambda = 30, 
                  control = list()) {
-    
+                   
+  # :::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # check the groups input (it should be a named list)
+  if (!is.null(groups)) {
+    if (is.list(groups)) {
+      if (is.null(names(groups))) {
+        names(groups) <- c("groups", "Glen")
+      }
+    }
+  }
+  
+  # # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # # Standardise response and design matrix
+  # if (standardize.data == TRUE) {
+  #   res   <- standardizemat(X, y)
+  #   X.std <- res$X.std
+  #   y.std <- res$y.std
+  # } else {
+  #   X.std <- X
+  #   y.std <- y
+  # }
+  # 
+  # # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # # Manage group & overall group weights
+  # # set weights_adaptive to FALSE if group_weights are provided by the user!
+  # if (!is.null(group_weights)) {
+  #   if (weights_adaptive == TRUE) {
+  #     warning("* lmSP : weights_adaptive is set to FALSE if group_weights are provided by the user!\n")
+  #     weights_adaptive <- FALSE
+  #   }
+  # }
+  # # compute group_weights if they are not provided by the user
+  # if (is.null(group_weights)) {
+  #   # Define the weights as in Yuan and Lin 2006, JRSSB
+  #   if (!is.null(weights_adaptive)) {
+  #     if (weights_adaptive == TRUE) {
+  #       if (is.null(Z)) {
+  #         coeff_LS <- lm_ols(X = X.std, y = y.std)
+  #         for (g in 1:G) {
+  #           idx              <- which(GRmat[g,] == 1)
+  #           group_weights[g] <- 1.0 / norm(coeff_LS[idx], type = "2")
+  #         }
+  #       } else {
+  #         coeff_LS <- lm_ols_FWL(X = X.std, Z = Z, y = y.std)$coeff_X
+  #         for (g in 1:G) {
+  #           idx              <- which(GRmat[g,] == 1)
+  #           group_weights[g] <- 1.0 / norm(coeff_LS[idx], type = "2")
+  #         }
+  #       }
+  #     } else {
+  #       group_weights <- rep(1, G)
+  #     }
+  #   } else {
+  #     group_weights <- rep(1, G)
+  #   }
+  # } else {
+  #   if (overall.group == TRUE) {
+  #     check_group_weights(x = group_weights, n = G, algname = "lmSP", funname = "group_weights")
+  #     if (length(group_weights) == (G-1)) {
+  #       group_weights <- c(group_weights, sqrt(dim(GRmat)[2]))
+  #     }
+  #   } else {
+  #     check_weights(x = group_weights, n = G, algname = "lmSP", funname = "group_weights")
+  #   }
+  # } 
+  
   # :::::::::::::::::::::::::::::::::::::::::::::::::::::
   # check the penalty input
-  if (!strcmpi(penalty, "LASSO") && !strcmpi(penalty, "GLASSO") && !strcmpi(penalty, "spGLASSO") && !strcmpi(penalty, "OVGLASSO")) {
-    stop("* lmSP : input 'penalty' must be correctly specified: 'LASSO', 'GLASSO', 'spGLASSO', 'OVGLASSO', 'spOVGLASSO'.") 
+  if (!strcmpi(penalty, "LASSO") && !strcmpi(penalty, "GLASSO") && !strcmpi(penalty, "spGLASSO") && !strcmpi(penalty, "OVGLASSO") && !strcmpi(penalty, "spOVGLASSO")) {
+    stop("* lmSP : input 'penalty' must be correctly specified: 'LASSO', 'GLASSO', 'spGLASSO', 'OVGLASSO', 'spOVGLASSO'.")
   }
   
   # :::::::::::::::::::::::::::::::::::::::::::::::::::::
   # run linear regression with LASSO-type penalty (means, LASSO or adaptive-LASSO)
   if (strcmpi(penalty, "LASSO")) {
-    res <- linreg_ADMM_LASSO(X = X, Z = Z, y = y, var_weights = var_weights, standardize.data = standardize.data, 
-                             lambda = lambda, lambda.min.ratio = lambda.min.ratio, nlambda = nlambda, 
+    res <- linreg_ADMM_LASSO(X = X, Z = Z, y = y, var_weights = var_weights, 
+                             adaptive = adaptive, 
+                             standardize.data = standardize.data, 
+                             lambda = lambda, lambda.min.ratio = lambda.min.ratio, 
+                             nlambda = nlambda, 
                              intercept = intercept, control = control) 
   }
   # :::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -236,6 +310,25 @@ lmSP <- function(X, Z = NULL, y, penalty = c("LASSO", "GLASSO", "spGLASSO", "OVG
                                   lambda = lambda, alpha = alpha, lambda.min.ratio = lambda.min.ratio, nlambda = nlambda,
                                   intercept = intercept, overall.group = overall.group, control = control)
   }
+  
+  # :::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # compute degrees of freedom
+  # out.df <- lm_dof_OVGLASSO(y                = y.std,
+  #                           X                = X.std, 
+  #                           Z                = Z,
+  #                           coeff            = res$coef.path,
+  #                           lambda           = lambda,
+  #                           adaptive_weights = weights_adaptive,
+  #                           GRmat            = GRmat,
+  #                           group_weights    = group_weights,
+  #                           var_weights      = var_weights,
+  #                           Umat             = res$U,
+  #                           err_primal       = res$err_pri,
+  #                           err_dual         = res$err_dual,
+  #                           rho              = res$rho,
+  #                           toler_c          = toler_c,
+  #                           toler_d          = toler_d)
+
   # :::::::::::::::::::::::::::::::::::::::::::::::::::::
   # return
   return(res)
@@ -478,10 +571,20 @@ lmSP <- function(X, Z = NULL, y, penalty = c("LASSO", "GLASSO", "spGLASSO", "OVG
 #' 
 #' @export
 lmSP_cv <- function(X, Z = NULL, y, penalty = c("LASSO", "GLASSO", "spGLASSO", "OVGLASSO", "spOVGLASSO"), 
-                    groups, group_weights = NULL, var_weights = NULL, var_weights_L1 = NULL, cv.fold = 5,
+                    groups = NULL, group_weights = NULL, var_weights = NULL, var_weights_L1 = NULL, cv.fold = 5,
                     standardize.data = TRUE, intercept = FALSE, overall.group = FALSE,
                     lambda = NULL, alpha = NULL, lambda.min.ratio = NULL, nlambda = 30, 
                     control = list()) {
+                      
+  # :::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # check the groups input (it should be a named list)
+  if (!is.null(groups)) {
+    if (is.list(groups)) {
+      if (is.null(names(groups))) {
+        names(groups) <- c("groups", "Glen")
+      }
+    }
+  }
     
   # :::::::::::::::::::::::::::::::::::::::::::::::::::::
   # check the penalty input
