@@ -14,9 +14,9 @@ f2sSP_cv(
   standardize.data = FALSE,
   splOrd = 4,
   diff_order = 1,
-  lambda = NULL,
-  lambda.min.ratio = NULL,
-  nlambda = NULL,
+  lambda1 = NULL,
+  lambda1.min.ratio = NULL,
+  nlambda1 = NULL,
   lambda2 = NULL,
   cv.fold = 5,
   intercept = FALSE,
@@ -42,18 +42,18 @@ each entry is the reciprocal of the number of groups including that basis. See B
 
 \item{splOrd}{the order \eqn{d} of the spline basis.}
 
-\item{diff_order}{order of the discrete difference operator used in the smoothness penalty.
-The default is 1.}
+\item{diff_order}{a positive integer specifying the order of the discrete
+difference operator used in the smoothness penalty. The default is 1.}
 
-\item{lambda}{either a regularization parameter or a vector of regularization parameters.}
+\item{lambda1}{either a regularization parameter or a vector of regularization parameters.}
 
-\item{lambda.min.ratio}{smallest value for lambda, as a fraction of the maximum lambda value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.}
+\item{lambda1.min.ratio}{smallest value for \code{lambda1}, as a fraction of the maximum \code{lambda1} value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.}
 
-\item{nlambda}{the number of lambda values - default is 30.}
+\item{nlambda1}{the number of \code{lambda1} values - default is 30.}
 
 \item{lambda2}{either a non-negative smoothing regularization parameter or a vector of
 smoothing regularization parameters. If \code{NULL}, no smoothness penalty is used.
-In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.}
+In this latter case the routine computes the whole path. If it is NULL values for \code{lambda1} are provided by the routine.}
 
 \item{cv.fold}{the number of folds - default is 5.}
 
@@ -69,10 +69,12 @@ A named list containing \describe{
 \item{sp.fun}{a length-\eqn{r} vector providing the estimated functional coefficient for \eqn{\psi(t)} corresponding to the minimum cross-validated MSE.}
 \item{coefficients}{a length-\eqn{q} solution vector for the parameters \eqn{\gamma}, which corresponds to the minimum cross-validated MSE.
 It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.} 
-\item{lambda}{sequence of lambda.}
-\item{lambda.min}{value of lambda that attains the minimum cross-validated MSE.}
+\item{lambda1}{sequence of regularization parameters \code{lambda1}.}
+\item{lambda2}{sequence of smoothing regularization parameters \code{lambda2}. It is \code{NULL} when no smoothness penalty is used.}
 \item{mse}{cross-validated mean squared error.}
 \item{min.mse}{minimum value of the cross-validated MSE for the sequence of lambda.}
+\item{lambda1.min.mse}{value of \code{lambda1} that attains the minimum in-sample MSE.}
+\item{lambda2.min.mse}{value of \code{lambda2} that attains the minimum in-sample MSE.}
 \item{convergence}{logical. 1 denotes achieved convergence.}
 \item{elapsedTime}{elapsed time in seconds.}
 \item{iternum}{number of iterations.}
@@ -83,15 +85,19 @@ become smaller than \code{eps_pri} and \code{eps_dual}, respectively.
 }
 \description{
 Overlap Group-LASSO for scalar-on-function regression model solves the following optimization problem
-\deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2}
+\deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda_1 \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2+\lambda_2\Vert D\psi\Vert_2^2}
 to obtain a sparse coefficient vector \eqn{\psi\in\mathbb{R}^{M}} for the functional penalized predictor \eqn{x(t)} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q} for the unpenalized scalar predictors \eqn{z_1,\dots,z_q}. The regression function is \eqn{\psi(t)=\varphi(t)^\intercal\psi}
 where \eqn{\varphi(t)} is a B-spline basis of order \eqn{d} and dimension \eqn{M}. 
 For each group \eqn{g}, each row of the matrix \eqn{S_g\in\mathbb{R}^{d\times M}} has non-zero entries only for those bases belonging 
 to that group. These values are provided by the arguments \code{groups} and \code{group_weights} (see below). 
 Each basis function belongs to more than one group. The diagonal matrix \eqn{T\in\mathbb{R}^{M\times M}} contains 
 the basis specific weights. These values are provided by the argument \code{var_weights} (see below).
-The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization 
-parameter \eqn{\lambda} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
+The matrix \eqn{D} is a discrete difference matrix whose order is specified
+by the argument \code{diff_order}, which must be greater than or equal to one.
+The penalty \eqn{\lambda_2 \lVert D\psi\rVert_2^2} controls the smoothness
+of the estimated coefficient function.
+The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization
+parameter \eqn{\lambda1} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
 for details on the ADMM method.
 }
 \section{Details}{
@@ -118,15 +124,14 @@ s     <- seq(0, 1, length.out = r)
 
 beta_basis <- splines::bs(s, df = p, intercept = TRUE)    # basis
 coef_data  <- matrix(rnorm(n*floor(p/2)), n, floor(p/2))        
-fun_data   <- coef_data \%*\% t(splines::bs(s, df = floor(p/2), intercept = TRUE))     
+fun_data   <- coef_data \%*\% t(splines::bs(s, 
+                  df = floor(p/2), intercept = TRUE))     
 
 x_0   <- apply(matrix(rnorm(p, sd=1),p,1), 1, fdaSP::softhresh, 1)  
 x_fun <- beta_basis \%*\% x_0                
 
 b     <- fun_data \%*\% x_fun + rnorm(n, sd = sqrt(crossprod(fun_data \%*\% x_fun ))/10)
 l     <- 10^seq(2, -4, length.out = 30)
-maxit <- 1000
-
 
 ## set the hyper-parameters
 maxit          <- 1000
@@ -137,8 +142,10 @@ abstol         <- 1e-5
 
 ## run cross-validation
 mod_cv <- f2sSP_cv(vY = b, mX = fun_data, M = p,
-                   group_weights = NULL, var_weights = NULL, standardize.data = FALSE, splOrd = 4,
-                   lambda = NULL, lambda.min = 1e-5, nlambda = 30, cv.fold = 5, intercept = FALSE, 
+                   group_weights = NULL, var_weights = NULL, 
+                   standardize.data = FALSE, splOrd = 4,
+                   lambda1 = NULL, lambda1.min.ratio = 1e-5, 
+                   nlambda1 = 30, cv.fold = 5, intercept = FALSE, 
                    control = list("abstol" = abstol, 
                                   "reltol" = reltol, 
                                   "adaptation" = rho_adaptation,
@@ -146,33 +153,44 @@ mod_cv <- f2sSP_cv(vY = b, mX = fun_data, M = p,
                                   "print.out" = FALSE))
                                           
 ### graphical presentation
-plot(log(mod_cv$lambda), mod_cv$mse, type = "l", col = "blue", lwd = 2, bty = "n", 
-     xlab = latex2exp::TeX("$\\\\log(\\\\lambda)$"), ylab = "Prediction Error", 
-     ylim = range(mod_cv$mse - mod_cv$mse.sd, mod_cv$mse + mod_cv$mse.sd),
+plot(log(mod_cv$lambda1), mod_cv$mse, type = "l", 
+     col = "blue", lwd = 2, bty = "n", 
+     xlab = latex2exp::TeX("$\\\\log(\\\\lambda_1)$"), 
+     ylab = "Prediction Error", 
+     ylim = range(mod_cv$mse - mod_cv$mse.sd, 
+     mod_cv$mse + mod_cv$mse.sd),
      main = "Cross-validated Prediction Error")
-fdaSP::confband(xV = log(mod_cv$lambda), yVmin = mod_cv$mse - mod_cv$mse.sd, 
+fdaSP::confband(xV = log(mod_cv$lambda1), 
+                yVmin = mod_cv$mse - mod_cv$mse.sd, 
                 yVmax = mod_cv$mse + mod_cv$mse.sd)       
-abline(v = log(mod_cv$lambda[which(mod_cv$lambda == mod_cv$lambda.min)]), 
+idx <- which(mod_cv$lambda1 == mod_cv$lambda1.min.mse)
+abline(v = log(mod_cv$lambda1[idx]), 
        col = "red", lwd = 1.0)
 
 ### comparison with oracle error
 mod <- f2sSP(vY = b, mX = fun_data, M = p, 
              group_weights = NULL, var_weights = NULL, 
              standardize.data = FALSE, splOrd = 4,
-             lambda = NULL, nlambda = 30, 
-             lambda.min = 1e-5, intercept = FALSE,
+             lambda1 = NULL, nlambda1 = 30, 
+             lambda1.min.ratio = 1e-5, intercept = FALSE,
              control = list("abstol" = abstol, 
                             "reltol" = reltol, 
                             "adaptation" = rho_adaptation, 
                             "rho" = rho, 
                             "print.out" = FALSE))
                                     
-err_mod <- apply(mod$sp.coef.path, 1, function(x) sum((x - x_0)^2))
-plot(log(mod$lambda), err_mod, type = "l", col = "blue", 
-     lwd = 2, xlab = latex2exp::TeX("$\\\\log(\\\\lambda)$"), 
-     ylab = "Estimation Error", main = "True Estimation Error", bty = "n")
-abline(v = log(mod$lambda[which(err_mod == min(err_mod))]), col = "red", lwd = 1.0)
-abline(v = log(mod_cv$lambda[which(mod_cv$lambda == mod_cv$lambda.min)]), 
+err_mod <- apply(mod$sp.coef.path, 1, 
+                 function(x) sum((x - x_0)^2))
+plot(log(mod$lambda1), 
+err_mod, type = "l", col = "blue", 
+     lwd = 2, 
+     xlab = latex2exp::TeX("$\\\\log(\\\\lambda_1)$"), 
+     ylab = "Estimation Error", 
+     main = "True Estimation Error", bty = "n")
+abline(v = log(mod$lambda1[which(err_mod == min(err_mod))]), 
+       col = "red", lwd = 1.0)
+idx <- which(mod_cv$lambda1 == mod_cv$lambda1.min.mse)
+abline(v = log(mod_cv$lambda1[idx]), 
        col = "red", lwd = 1.0, lty = 2)                                      
 
 }

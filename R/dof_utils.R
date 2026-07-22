@@ -1,5 +1,5 @@
 #
-## last update: 15 October 2025
+## last update: July 22, 2026
 #
 
 #
@@ -9,11 +9,12 @@
 
 # Functions: 
 #
-#           1. ovglasso_group_selmat
-#           2. lm_dof_OVGLASSO
-#           3. f2s_dof
-#           4. f2s_cov_dof
-#           5. lm_dof
+#           1.  lm_dof,                                  wrap of the dof for the linear regression
+#           1.1 lm_dof_LASSO,                            wrapped in lm_dof
+#           1.2 lm_dof_OVGLASSO,                         wrapped in  lm_dof
+#           2.  f2s_dof                                  wrap of the dof for the scalar-on-function regression
+#           3.  f2s_cov_dof                              wrap of the dof for the scalar-on-function regression with non-functional covariates
+#           4.  ovglasso_group_selmat
 
 ####
 #     Linear regression models
@@ -292,7 +293,7 @@ lm_dof_OVGLASSO <- function(y,
 f2s_dof <- function(W,
                     y,
                     coeff,
-                    lambda,
+                    lambda1,
                     lambda2 = NULL,
                     diff_order = 1,
                     adaptive_weights = TRUE,
@@ -307,7 +308,7 @@ f2s_dof <- function(W,
                     toler_d) {
   
   # get dimensions
-  nlambda  <- length(lambda)
+  nlambda1  <- length(lambda1)
   nlambda2 <- length(lambda2)
   p        <- dim(W)[2]
   G        <- length(group_weights)
@@ -315,35 +316,35 @@ f2s_dof <- function(W,
   # store output
   if (is.null(lambda2)) {
     # se lambda2 è NULL lo considero zero
-    dof_STORE               <- rep(0.0, nlambda)
-    groups_active_STORE     <- matrix(data = 0, nrow = nlambda, ncol = G)
-    vars_active_STORE       <- matrix(data = 0, nrow = nlambda, ncol = p)
-    coeff_active_STORE      <- vector("list", nlambda)
-    dim(coeff_active_STORE) <- nlambda
-    lambda2                 <- 0                                    # 27 april 2026: set to zero in case NULL
+    dof_STORE                  <- rep(0.0, nlambda1)
+    groups_active_STORE        <- matrix(data = 0, nrow = nlambda1, ncol = G)
+    vars_active_STORE          <- matrix(data = 0, nrow = nlambda1, ncol = p)
+    coeff_active_STORE         <- vector("list", nlambda1)
+    length(coeff_active_STORE) <- nlambda1
+    lambda2                    <- 0                                    # 27 april 2026: set to zero in case NULL
   } else {
     if (nlambda2 == 1) {
       if (lambda2 == 0) {
-        # qui ho un solo lambda che è zero
-        dof_STORE               <- rep(0.0, nlambda)
-        groups_active_STORE     <- matrix(data = 0, nrow = nlambda, ncol = G)
-        vars_active_STORE       <- matrix(data = 0, nrow = nlambda, ncol = p)
-        coeff_active_STORE      <- vector("list", nlambda)
-        dim(coeff_active_STORE) <- nlambda
+        # qui ho un solo lambda1 che è zero
+        dof_STORE                  <- rep(0.0, nlambda1)
+        groups_active_STORE        <- matrix(data = 0, nrow = nlambda1, ncol = G)
+        vars_active_STORE          <- matrix(data = 0, nrow = nlambda1, ncol = p)
+        coeff_active_STORE         <- vector("list", nlambda1)
+        length(coeff_active_STORE) <- nlambda1
       } else {
-        # qui ho un solo lambda che non è zero
-        dof_STORE               <- matrix(data = 0.0, nrow = nlambda, ncol = nlambda2)
-        groups_active_STORE     <- array(data = 0, dim = c(nlambda, nlambda2, G))
-        vars_active_STORE       <- array(data = 0, dim = c(nlambda, nlambda2, p))
-        coeff_active_STORE      <- vector("list", nlambda * nlambda2)
-        dim(coeff_active_STORE) <- c(nlambda, nlambda2)
+        # qui ho un solo lambda1 che non è zero
+        dof_STORE               <- matrix(data = 0.0, nrow = nlambda1, ncol = nlambda2)
+        groups_active_STORE     <- array(data = 0, dim = c(nlambda1, nlambda2, G))
+        vars_active_STORE       <- array(data = 0, dim = c(nlambda1, nlambda2, p))
+        coeff_active_STORE      <- vector("list", nlambda1 * nlambda2)
+        dim(coeff_active_STORE) <- c(nlambda1, nlambda2)
       }
     } else {
-      dof_STORE               <- matrix(data = 0.0, nrow = nlambda, ncol = nlambda2)
-      groups_active_STORE     <- array(data = 0, dim = c(nlambda, nlambda2, G))
-      vars_active_STORE       <- array(data = 0, dim = c(nlambda, nlambda2, p))
-      coeff_active_STORE      <- vector("list", nlambda * nlambda2)
-      dim(coeff_active_STORE) <- c(nlambda, nlambda2)
+      dof_STORE               <- matrix(data = 0.0, nrow = nlambda1, ncol = nlambda2)
+      groups_active_STORE     <- array(data = 0, dim = c(nlambda1, nlambda2, G))
+      vars_active_STORE       <- array(data = 0, dim = c(nlambda1, nlambda2, p))
+      coeff_active_STORE      <- vector("list", nlambda1 * nlambda2)
+      dim(coeff_active_STORE) <- c(nlambda1, nlambda2)
     }
   }
   
@@ -356,13 +357,13 @@ f2s_dof <- function(W,
   if ((!is.null(lambda2)) || (!is.null(diff_order))) {
     if (length(lambda2) == 1) {
       if (lambda2 == 0.0) {
-        for (j in 1:nlambda) {
+        for (j in 1:nlambda1) {
           if (adaptive_weights == TRUE) {
             # compute degrees of freedom: adaptive weights
             res <- .f2s_adaptive_dof_1lambda(W = W,
                                              coeff = coeff[j,],
                                              coeff_LS = coeff_LS,
-                                             lambda = lambda[j],
+                                             lambda = lambda1[j],
                                              GRmat = GRmat,
                                              group_weights = group_weights,
                                              var_weights = var_weights,
@@ -376,7 +377,7 @@ f2s_dof <- function(W,
             # compute degrees of freedom: weights are not adaptive
             res <- .f2s_dof_1lambda(W = W,
                                     coeff = coeff[j,],
-                                    lambda = lambda[j],
+                                    lambda = lambda1[j],
                                     GRmat = GRmat,
                                     group_weights = group_weights,
                                     var_weights = var_weights,
@@ -395,14 +396,14 @@ f2s_dof <- function(W,
           vars_active_STORE[j,]   <- as.numeric(res$var_active)
         }
       } else {
-        for (j in 1:nlambda) {
+        for (j in 1:nlambda1) {
           for (k in 1:nlambda2) {
             if (adaptive_weights == TRUE) {
               # compute degrees of freedom: adaptive weights
               res <- .f2s_smo_adaptive_dof_1lambda(W = W, 
                                                    coeff = coeff[j,k,],
                                                    coeff_LS = coeff_LS,
-                                                   lambda = lambda[j], 
+                                                   lambda = lambda1[j], 
                                                    lambda2 = lambda2[k], 
                                                    diff_order = diff_order,
                                                    GRmat = GRmat,
@@ -417,7 +418,7 @@ f2s_dof <- function(W,
             } else {
               res <- .f2s_smo_dof_1lambda(W = W, 
                                           coeff = coeff[j,k,],
-                                          lambda = lambda[j], 
+                                          lambda = lambda1[j], 
                                           lambda2 = lambda2[k], 
                                           diff_order = diff_order,
                                           GRmat = GRmat,
@@ -440,14 +441,14 @@ f2s_dof <- function(W,
         }
       }
     } else {
-      for (j in 1:nlambda) {
+      for (j in 1:nlambda1) {
         for (k in 1:nlambda2) {
           if (adaptive_weights == TRUE) {
             # compute degrees of freedom: adaptive weights
             res <- .f2s_smo_adaptive_dof_1lambda(W = W, 
                                                  coeff = coeff[j,k,],
                                                  coeff_LS = coeff_LS,
-                                                 lambda = lambda[j], 
+                                                 lambda = lambda1[j], 
                                                  lambda2 = lambda2[k], 
                                                  diff_order = diff_order,
                                                  GRmat = GRmat,
@@ -462,7 +463,7 @@ f2s_dof <- function(W,
           } else {
             res <- .f2s_smo_dof_1lambda(W = W, 
                                         coeff = coeff[j,k,],
-                                        lambda = lambda[j], 
+                                        lambda = lambda1[j], 
                                         lambda2 = lambda2[k], 
                                         diff_order = diff_order,
                                         GRmat = GRmat,
@@ -506,7 +507,7 @@ f2s_cov_dof <- function(W,
                         coeff_W,
                         coeff_Z,
                         coeff_W_LS,
-                        lambda,
+                        lambda1,
                         lambda2 = NULL,
                         diff_order = 1,
                         adaptive_weights = TRUE,
@@ -521,7 +522,7 @@ f2s_cov_dof <- function(W,
                         toler_d) {
   
   # get dimensions
-  nlambda  <- length(lambda)
+  nlambda1 <- length(lambda1)
   nlambda2 <- length(lambda2)
   p        <- dim(W)[2]
   G        <- length(group_weights)
@@ -529,35 +530,35 @@ f2s_cov_dof <- function(W,
   # store output
   if (is.null(lambda2)) {
     # se lambda2 è NULL lo considero zero
-    dof_STORE               <- rep(0.0, nlambda)
-    groups_active_STORE     <- matrix(data = 0, nrow = nlambda, ncol = G)
-    vars_active_STORE       <- matrix(data = 0, nrow = nlambda, ncol = p)
-    coeff_active_STORE      <- vector("list", nlambda)
-    dim(coeff_active_STORE) <- nlambda
+    dof_STORE               <- rep(0.0, nlambda1)
+    groups_active_STORE     <- matrix(data = 0, nrow = nlambda1, ncol = G)
+    vars_active_STORE       <- matrix(data = 0, nrow = nlambda1, ncol = p)
+    coeff_active_STORE      <- vector("list", nlambda1)
+    dim(coeff_active_STORE) <- nlambda1
     lambda2                 <- 0
   } else {
     if (nlambda2 == 1) {
       if (lambda2 == 0) {
-        # qui ho un solo lambda che è zero
-        dof_STORE               <- rep(0.0, nlambda)
-        groups_active_STORE     <- matrix(data = 0, nrow = nlambda, ncol = G)
-        vars_active_STORE       <- matrix(data = 0, nrow = nlambda, ncol = p)
-        coeff_active_STORE      <- vector("list", nlambda)
-        dim(coeff_active_STORE) <- nlambda
+        # qui ho un solo lambda1 che è zero
+        dof_STORE                  <- rep(0.0, nlambda1)
+        groups_active_STORE        <- matrix(data = 0, nrow = nlambda1, ncol = G)
+        vars_active_STORE          <- matrix(data = 0, nrow = nlambda1, ncol = p)
+        coeff_active_STORE         <- vector("list", nlambda1)
+        length(coeff_active_STORE) <- nlambda1
       } else {
-        # qui ho un solo lambda che non è zero
-        dof_STORE               <- matrix(data = 0.0, nrow = nlambda, ncol = nlambda2)
-        groups_active_STORE     <- array(data = 0, dim = c(nlambda, nlambda2, G))
-        vars_active_STORE       <- array(data = 0, dim = c(nlambda, nlambda2, p))
-        coeff_active_STORE      <- vector("list", nlambda * nlambda2)
-        dim(coeff_active_STORE) <- c(nlambda, nlambda2)
+        # qui ho un solo lambda1 che non è zero
+        dof_STORE               <- matrix(data = 0.0, nrow = nlambda1, ncol = nlambda2)
+        groups_active_STORE     <- array(data = 0, dim = c(nlambda1, nlambda2, G))
+        vars_active_STORE       <- array(data = 0, dim = c(nlambda1, nlambda2, p))
+        coeff_active_STORE      <- vector("list", nlambda1 * nlambda2)
+        dim(coeff_active_STORE) <- c(nlambda1, nlambda2)
       }
     } else {
-      dof_STORE               <- matrix(data = 0.0, nrow = nlambda, ncol = nlambda2)
-      groups_active_STORE     <- array(data = 0, dim = c(nlambda, nlambda2, G))
-      vars_active_STORE       <- array(data = 0, dim = c(nlambda, nlambda2, p))
-      coeff_active_STORE      <- vector("list", nlambda * nlambda2)
-      dim(coeff_active_STORE) <- c(nlambda, nlambda2)
+      dof_STORE               <- matrix(data = 0.0, nrow = nlambda1, ncol = nlambda2)
+      groups_active_STORE     <- array(data = 0, dim = c(nlambda1, nlambda2, G))
+      vars_active_STORE       <- array(data = 0, dim = c(nlambda1, nlambda2, p))
+      coeff_active_STORE      <- vector("list", nlambda1 * nlambda2)
+      dim(coeff_active_STORE) <- c(nlambda1, nlambda2)
     }
   }
   
@@ -571,13 +572,13 @@ f2s_cov_dof <- function(W,
   if ((!is.null(lambda2)) || (!is.null(diff_order))) {
     if (length(lambda2) == 1) {
       if (lambda2 == 0.0) {
-        for (j in 1:nlambda) {
+        for (j in 1:nlambda1) {
           if (adaptive_weights == TRUE) {
             res <- .f2s_cov_adaptive_dof_1lambda(W = W, 
                                                  Z = Z, 
                                                  coeff_W = coeff_W[j,],
                                                  coeff_W_LS = coeff_W_LS,
-                                                 lambda = lambda[j], 
+                                                 lambda = lambda1[j], 
                                                  GRmat = GRmat,
                                                  group_weights = group_weights,
                                                  var_weights = var_weights,
@@ -591,7 +592,7 @@ f2s_cov_dof <- function(W,
             res <- .f2s_cov_dof_1lambda(W = W, 
                                         Z = Z, 
                                         coeff_W = coeff_W[j,],
-                                        lambda = lambda[j], 
+                                        lambda = lambda1[j], 
                                         GRmat = GRmat,
                                         group_weights = group_weights,
                                         var_weights = var_weights,
@@ -610,14 +611,14 @@ f2s_cov_dof <- function(W,
           vars_active_STORE[j,]   <- as.numeric(res$var_active)
         }
       } else {
-        for (j in 1:nlambda) {
+        for (j in 1:nlambda1) {
           for (k in 1:nlambda2) {
             if (adaptive_weights == TRUE) {
               res <- .f2s_adaptive_cov_smo_dof_1lambda(W = W, 
                                                        Z = Z, 
                                                        coeff_W = coeff_W[j,k,],
                                                        coeff_W_LS = coeff_W_LS,
-                                                       lambda = lambda[j], 
+                                                       lambda = lambda1[j], 
                                                        lambda2 = lambda2[k], 
                                                        diff_order = diff_order,
                                                        GRmat = GRmat,
@@ -633,7 +634,7 @@ f2s_cov_dof <- function(W,
               res <- .f2s_cov_smo_dof_1lambda(W = W, 
                                               Z = Z, 
                                               coeff_W = coeff_W[j,k,],
-                                              lambda = lambda[j], 
+                                              lambda = lambda1[j], 
                                               lambda2 = lambda2[k], 
                                               diff_order = diff_order,
                                               GRmat = GRmat,
@@ -656,14 +657,14 @@ f2s_cov_dof <- function(W,
         }
       }
     } else {
-      for (j in 1:nlambda) {
+      for (j in 1:nlambda1) {
         for (k in 1:nlambda2) {
           if (adaptive_weights == TRUE) {
             res <- .f2s_adaptive_cov_smo_dof_1lambda(W = W, 
                                                      Z = Z, 
                                                      coeff_W = coeff_W[j,k,],
                                                      coeff_W_LS = coeff_W_LS,
-                                                     lambda = lambda[j], 
+                                                     lambda = lambda1[j], 
                                                      lambda2 = lambda2[k], 
                                                      diff_order = diff_order,
                                                      GRmat = GRmat,
@@ -679,7 +680,7 @@ f2s_cov_dof <- function(W,
             res <- .f2s_cov_smo_dof_1lambda(W = W, 
                                             Z = Z, 
                                             coeff_W = coeff_W[j,k,],
-                                            lambda = lambda[j], 
+                                            lambda = lambda1[j], 
                                             lambda2 = lambda2[k], 
                                             diff_order = diff_order,
                                             GRmat = GRmat,

@@ -5,21 +5,25 @@
 #      	   35121 PADOVA, Italy
 #          E-mail: mauro.bernardi@unipd.it  
 
-# Last change: October 21, 2025
+# Last change: July 21, 2026
 
 
 #' Overlap Group Least Absolute Shrinkage and Selection Operator for scalar-on-function regression model
 #'
 #' Overlap Group-LASSO for scalar-on-function regression model solves the following optimization problem
-#' \deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2}
+#' \deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda_1 \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2+\lambda_2\Vert D\psi\Vert_2^2}
 #' to obtain a sparse coefficient vector \eqn{\psi\in\mathbb{R}^{M}} for the functional penalized predictor \eqn{x(t)} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q} for the unpenalized scalar predictors \eqn{z_1,\dots,z_q}. The regression function is \eqn{\psi(t)=\varphi(t)^\intercal\psi}
 #' where \eqn{\varphi(t)} is a B-spline basis of order \eqn{d} and dimension \eqn{M}. For each group \eqn{g}, each row of 
 #' the matrix \eqn{S_g\in\mathbb{R}^{d\times M}} has non-zero entries only for those bases belonging 
 #' to that group. These values are provided by the arguments \code{groups} and \code{group_weights} (see below). 
 #' Each basis function belongs to more than one group. The diagonal matrix \eqn{T\in\mathbb{R}^{M\times M}} contains 
 #' the basis-specific weights. These values are provided by the argument \code{var_weights} (see below).
-#' The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization 
-#' parameter \eqn{\lambda} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
+#' The matrix \eqn{D} is a discrete difference matrix whose order is specified
+#' by the argument \code{diff_order}, which must be greater than or equal to one.
+#' The penalty \eqn{\lambda_2 \lVert D\psi\rVert_2^2} controls the smoothness
+#' of the estimated coefficient function.
+#' The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization
+#' parameter \eqn{\lambda_1} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
 #' for details on the ADMM method.
 #'  
 #' @param vY a length-\eqn{n} vector of observations of the scalar response variable.
@@ -34,37 +38,40 @@
 #' \code{group_weights} are provided by the user, since external weights override the adaptive scheme.
 #' @param standardize.data logical. Should data be standardized?
 #' @param splOrd the order \eqn{d} of the spline basis.
-#' @param diff_order order of the discrete difference operator used in the smoothness penalty.
-#' The default is 1.
-#' @param lambda either a regularization parameter or a vector of regularization parameters.
-#' In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.
+#' @param diff_order a positive integer specifying the order of the discrete
+#' difference operator used in the smoothness penalty. The default is 1.
+#' @param lambda1 either a regularization parameter or a vector of regularization parameters.
+#' In this latter case the routine computes the whole path. If it is NULL values for \code{lambda1} are provided by the routine.
 #' @param lambda2 either a non-negative smoothing regularization parameter or a vector of
 #' smoothing regularization parameters. If \code{NULL}, no smoothness penalty is used.
-#' @param lambda.min.ratio smallest value for lambda, as a fraction of the maximum lambda value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.
-#' @param nlambda the number of lambda values - default is 30.
+#' @param lambda1.min.ratio smallest value for \code{lambda1}, as a fraction of the maximum \code{lambda1} value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.
+#' @param nlambda1 the number of \code{lambda1} values - default is 30.
 #' @param intercept logical. If it is TRUE, a column of ones is added to the design matrix. 
 #' @param overall.group logical. If it is TRUE, an overall group including all penalized covariates is added.
 #' @param control	 a list of control parameters for the ADMM algorithm. See ‘Details’.
 #'
 #' @return A named list containing \describe{
 #' \item{sp.coefficients}{a length-\eqn{M} solution vector for the parameters \eqn{\psi}, which corresponds to the minimum in-sample MSE.}
-#' \item{sp.coef.path}{an \eqn{(n_\lambda\times M)} matrix of estimated \eqn{\psi} coefficients for each lambda.}
+#' \item{sp.coef.path}{an \eqn{(n_{\lambda_1}\times M)} matrix of estimated \eqn{\psi} coefficients for each \code{lambda1}.}
 #' \item{sp.fun}{a length-\eqn{r} vector providing the estimated functional coefficient for \eqn{\psi(t)}.}
-#' \item{sp.fun.path}{an \eqn{(n_\lambda\times r)} matrix providing the estimated functional coefficients for \eqn{\psi(t)} for each lambda.}
+#' \item{sp.fun.path}{an \eqn{(n_{\lambda_1}\times r)} matrix providing the estimated functional coefficients for \eqn{\psi(t)} for each \code{lambda1}.}
 #' \item{coefficients}{a length-\eqn{q} solution vector for the parameters \eqn{\gamma}, which corresponds to the minimum in-sample MSE. 
 #' It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.}
-#' \item{coef.path}{an \eqn{(n_\lambda\times q)} matrix of estimated \eqn{\gamma} coefficients for each lambda. 
+#' \item{coef.path}{an \eqn{(n_{\lambda_1}\times q)} matrix of estimated \eqn{\gamma} coefficients for each \code{lambda1}. 
 #' It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.}
 #' \item{dof}{estimated degrees of freedom for each value of the regularization parameter.}
 #' \item{dof.groups_active}{active groups used in the degrees-of-freedom computation for each value of the regularization parameter.}
 #' \item{dof.coeff_active}{active coefficient indices used in the degrees-of-freedom computation for each value of the regularization parameter.}
 #' \item{dof.vars_active}{active basis coefficients used in the degrees-of-freedom computation for each value of the regularization parameter.}
 #' \item{bic}{Bayesian information criterion computed along the regularization path.}
-#' \item{lambda.min}{value of lambda that attains the minimum in-sample MSE.}
-#' \item{lambda}{sequence of lambda.}
-#' \item{lambda2}{sequence of smoothing regularization parameters. It is \code{NULL} when no smoothness penalty is used.}
+#' \item{lambda1.min.bic}{optimal value of the \code{lambda1} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
+#' \item{lambda1.min.bic}{optimal value of the \code{lambda2} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
+#' \item{lambda1}{sequence of regularization parameters \code{lambda1}.}
+#' \item{lambda2}{sequence of smoothing regularization parameters \code{lambda2}. It is \code{NULL} when no smoothness penalty is used.}
 #' \item{mse}{in-sample mean squared error.}
-#' \item{min.mse}{minimum value of the in-sample MSE for the sequence of lambda.}
+#' \item{lambda1.min.mse}{value of \code{lambda1} that attains the minimum in-sample MSE.}
+#' \item{lambda2.min.mse}{value of \code{lambda2} that attains the minimum in-sample MSE.}
+#' \item{min.mse}{minimum value of the in-sample MSE for the sequence of \code{lambda1}.}
 #' \item{convergence}{logical. 1 denotes achieved convergence.}
 #' \item{elapsedTime}{elapsed time in seconds.}
 #' \item{iternum}{number of iterations.}
@@ -112,8 +119,6 @@
 #' 
 #' b     <- fun_data %*% x_fun + rnorm(n, sd = sqrt(crossprod(fun_data %*% x_fun ))/10)
 #' l     <- 10^seq(2, -4, length.out = 30)
-#' maxit <- 1000
-#' 
 #' 
 #' ## set the hyper-parameters
 #' maxit          <- 1000
@@ -122,19 +127,54 @@
 #' reltol         <- 1e-5
 #' abstol         <- 1e-5
 #' 
-#' mod <- f2sSP(vY = b, mX = fun_data, M = p,
-#'              group_weights = NULL, var_weights = NULL, standardize.data = FALSE, splOrd = 4,
-#'              lambda = NULL, nlambda = 30, lambda.min = NULL, overall.group = FALSE, 
-#'              control = list("abstol" = abstol, 
-#'                             "reltol" = reltol, 
-#'                             "adaptation" = rho_adaptation, 
-#'                             "rho" = rho, 
-#'                             "print.out" = FALSE)) 
+#' # model fit
+#' mod1 <- f2sSP(vY = b, mX = fun_data, 
+#'               mZ = NULL, M = 5,
+#'               group_weights = NULL, 
+#'               var_weights = NULL, 
+#'               standardize.data = FALSE, 
+#'               intercept = FALSE, splOrd = 4,
+#'               lambda1 = NULL, nlambda1 = 30, 
+#'               lambda1.min.ratio = NULL, 
+#'               weights_adaptive = TRUE, 
+#'               overall.group = FALSE, 
+#'               control = list("maxit"      = maxit,
+#'                              "abstol"     = abstol, 
+#'                              "reltol"     = reltol, 
+#'                              "adaptation" = rho_adaptation, 
+#'                              "rho"        = rho, 
+#'                              "print.out"  = FALSE)) 
 #' 
 #' # plot coefficiente path
-#' matplot(log(mod$lambda), mod$sp.coef.path, type = "l", 
-#'         xlab = latex2exp::TeX("$\\log(\\lambda)$"), ylab = "", bty = "n", lwd = 1.2)
-#' 
+#' matplot(log(mod1$lambda1), mod1$sp.coef.path, type = "l", 
+#'         xlab = latex2exp::TeX("$\\log(\\lambda_1)$"), ylab = "", bty = "n", lwd = 1.2)
+#'         
+#'  # model fit with smoothing      
+#'  lam2 <- 10^seq(5, -3, length.out = 20)  # lambda2 sequence 
+#'  mod2 <- f2sSP(vY = b, mX = fun_data, 
+#'                mZ = NULL, M = 5,
+#'                group_weights = NULL, 
+#'                var_weights   = NULL, 
+#'                standardize.data = FALSE, 
+#'                intercept = FALSE, splOrd = 4,
+#'                lambda1 = NULL, nlambda1 = 30, 
+#'                lambda1.min.ratio = NULL,
+#'                lambda2 = lam2, 
+#'                diff_order = 2,
+#'                weights_adaptive = TRUE, 
+#'                overall.group = FALSE, 
+#'                control = list("maxit"      = maxit,
+#'                               "abstol"     = abstol, 
+#'                               "reltol"     = reltol, 
+#'                               "adaptation" = rho_adaptation, 
+#'                               "rho"        = rho, 
+#'                               "print.out"  = FALSE))       
+#'
+#' idx <- which(mod2$lambda2 == mod2$lambda2.min.bic)
+#' matplot(log(mod2$lambda1), mod2$sp.coef.path[, idx,, drop = TRUE], type = "l",
+#'         xlab = latex2exp::TeX("$\\log(\\lambda_1)$"), ylab = "",
+#'         bty = "n", lwd = 1.2)                              
+#'                                          
 #' @references
 #' \insertRef{bernardi_etal.2022}{fdaSP}
 #' 
@@ -148,7 +188,7 @@
 f2sSP <- function(vY, mX, mZ = NULL, M, 
                   group_weights = NULL, var_weights = NULL, weights_adaptive = FALSE,
                   standardize.data = TRUE, splOrd = 4, diff_order = 1,
-                  lambda = NULL, lambda2 = NULL, nlambda = 30, lambda.min.ratio = NULL, 
+                  lambda1 = NULL, lambda2 = NULL, nlambda1 = 30, lambda1.min.ratio = NULL, 
                   intercept = FALSE, overall.group = FALSE, control = list()) {
     
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -228,10 +268,10 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  # Pre-processing: lambda parameter (in case of a single lambda)
+  # Pre-processing: lambda1 parameter (in case of a single lambda1)
   output <- f2s_reg_RIDGE(y = y.std, Z = mZ, X = X.std, 
                           diff_order = diff_order, 
-                          lambda = lambda, lambda2 = lambda2)
+                          lambda = lambda1, lambda2 = lambda2)
 
   # retrieve estimate coefficients in case standardize is TRUE
   if (!is.null(output)) {
@@ -280,7 +320,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
                    "coefficients",
                    "coef.path",
                    "dof",
-                   "lambda",
+                   "lambda1",
                    "lambda2",
                    "mse",
                    "min.mse",
@@ -296,7 +336,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
     res$sp.fun.path       <- sp.fun.path
     res$sp.fun            <- t(sp.fun)
     res$dof               <- output$dof
-    res$lambda            <- lambda
+    res$lambda1           <- lambda1
     res$lambda2           <- lambda2
     res$mse               <- output$mse
     res$min.mse           <- output$min.mse
@@ -432,23 +472,23 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
   # }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  # Get the sequence of lambda
-  if (!is.null(nlambda) && is.null(lambda)) {
+  # Get the sequence of lambda1
+  if (!is.null(nlambda1) && is.null(lambda1)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
-                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = nlambda)$lambda.seq
+    lambda1 <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
+                                     GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                     lambda.min.ratio = lambda1.min.ratio, maxl = nlambda1)$lambda.seq
   }
-  if (is.null(nlambda) && is.null(lambda)) {
+  if (is.null(nlambda1) && is.null(lambda1)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
-                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = 30)$lambda.seq
+    lambda1 <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
+                                     GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                     lambda.min.ratio = lambda1.min.ratio, maxl = 30)$lambda.seq
   }
-  if (!is.null(lambda)) {
-    nlambda <- length(lambda)
+  if (!is.null(lambda1)) {
+    nlambda1 <- length(lambda1)
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -459,7 +499,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
     if ((is.null(diff_order)) || (is.null(lambda2))) {
       ret <- .admm_ovglasso_fast(A = X.std, b = y.std, groups = GRmat,
                                  group_weights = group_weights, var_weights = var_weights,
-                                 lambda = lambda, rho_adaptation = adaptation,
+                                 lambda = lambda1, rho_adaptation = adaptation,
                                  rho = rho, tau = tau.ada, mu = mu.ada,
                                  reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
     } else {
@@ -467,13 +507,13 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
         if (lambda2 == 0) {
           ret <- .admm_ovglasso_fast(A = X.std, b = y.std, groups = GRmat,
                                      group_weights = group_weights, var_weights = var_weights,
-                                     lambda = lambda, rho_adaptation = adaptation,
+                                     lambda = lambda1, rho_adaptation = adaptation,
                                      rho = rho, tau = tau.ada, mu = mu.ada,
                                      reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
         } else {
           ret <- .admm_ovglasso_smo_fast(A = X.std, b = y.std, groups = GRmat,
                                          group_weights = group_weights, var_weights = var_weights,
-                                         lambda = lambda, lambda2 = lambda2, diff_order = diff_order, 
+                                         lambda = lambda1, lambda2 = lambda2, diff_order = diff_order, 
                                          rho_adaptation = adaptation,
                                          rho = rho, tau = tau.ada, mu = mu.ada,
                                          reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
@@ -481,7 +521,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
       } else {
         ret <- .admm_ovglasso_smo_fast(A = X.std, b = y.std, groups = GRmat,
                                        group_weights = group_weights, var_weights = var_weights,
-                                       lambda = lambda, lambda2 = lambda2, diff_order = diff_order, 
+                                       lambda = lambda1, lambda2 = lambda2, diff_order = diff_order, 
                                        rho_adaptation = adaptation,
                                        rho = rho, tau = tau.ada, mu = mu.ada,
                                        reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
@@ -501,26 +541,26 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
     if ((is.null(diff_order)) || (is.null(lambda2))) {
       ret <- .admm_ovglasso_cov_fast(W = X.std, Z = mZ, y = y.std,
                                      groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                                     lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
+                                     lambda = lambda1, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
                                      reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
     } else {
       if (length(lambda2) == 1) {
         if (lambda2 == 0) {
           ret <- .admm_ovglasso_cov_fast(W = X.std, Z = mZ, y = y.std,
                                          groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                                         lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
+                                         lambda = lambda1, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
                                          reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
         } else {
           ret <- .admm_ovglasso_cov_smo_fast(W = X.std, Z = mZ, y = y.std,
                                              groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                                             lambda = lambda, lambda2 = lambda2, diff_order = diff_order,
+                                             lambda = lambda1, lambda2 = lambda2, diff_order = diff_order,
                                              rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
                                              reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
         }
       } else {
         ret <- .admm_ovglasso_cov_smo_fast(W = X.std, Z = mZ, y = y.std,
                                            groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                                           lambda = lambda, lambda2 = lambda2, diff_order = diff_order,
+                                           lambda = lambda1, lambda2 = lambda2, diff_order = diff_order,
                                            rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu.ada,
                                            reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       }
@@ -541,17 +581,17 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
   if (standardize.data == TRUE) {
     # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     # Get the path and retrieve the scaled estimates
-    #path <- array(dim = c(nlambda, L, M), data = t(apply(mRegP, 2, function(x) solve(mU) %*% x %*% mV)))
-    #sp.path <- matrix(data = t(apply(mSpRegP, 2, function(x) solve(mU) %*% x %*% mV)), nlambda, M)
+    #path <- array(dim = c(nlambda1, L, M), data = t(apply(mRegP, 2, function(x) solve(mU) %*% x %*% mV)))
+    #sp.path <- matrix(data = t(apply(mSpRegP, 2, function(x) solve(mU) %*% x %*% mV)), nlambda1, M)
     if (length(dim(mSpRegP)) == 2) {
-      sp.path <- matrix(data = t(apply(mSpRegP, 2, function(x) solve(mU) %*% x %*% mV)), nlambda, M)
+      sp.path <- matrix(data = t(apply(mSpRegP, 2, function(x) solve(mU) %*% x %*% mV)), nlambda1, M)
     } else {
       sp.path <- array(
         data = 0,
         dim  = dim(mSpRegP)
       )
       for (k in 1:length(lambda2)) {
-        sp.path[,k,] <- matrix(data = t(apply(t(mSpRegP[,k,]), 2, function(x) solve(mU) %*% x %*% mV)), nlambda, M)
+        sp.path[,k,] <- matrix(data = t(apply(t(mSpRegP[,k,]), 2, function(x) solve(mU) %*% x %*% mV)), nlambda1, M)
       }
     }
     
@@ -563,27 +603,27 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
     # Retrieve estimated parameters (non penalized covariates)
     if (!is.null(mZ)) {
       if (length(dim(mSpRegP)) == 2) {
-        path  <- matrix(nlambda, q, data = t(apply(mRegP, 2, function(x) x %*% mV)))
+        path  <- matrix(nlambda1, q, data = t(apply(mRegP, 2, function(x) x %*% mV)))
       } else {
         path <- array(
           data = 0,
           dim  = dim(mRegP)
         )
         for (k in 1:length(lambda2)) {
-          path[,k,] <- matrix(nlambda, q, data = apply(mRegP[,k,], 2, function(x) x %*% mV))
+          path[,k,] <- matrix(nlambda1, q, data = apply(mRegP[,k,], 2, function(x) x %*% mV))
         }
       }
       vRegP <- vRegP %*% mV
     }
   } else {
-    #path   <- array(dim = c(nlambda, L, M), data = t(mRegP))
-    #sp.path  <- matrix(data = t(mSpRegP), nlambda, M)
+    #path   <- array(dim = c(nlambda1, L, M), data = t(mRegP))
+    #sp.path  <- matrix(data = t(mSpRegP), nlambda1, M)
     #mSpRegP_ <- matrix(vSpRegP, nrow = 1, ncol = M)
     #if (!is.null(mZ)) {
     #  path <- t(mRegP)
     #}
     if (length(dim(mSpRegP)) == 2) {
-      sp.path  <- matrix(data = t(mSpRegP), nlambda, M)
+      sp.path  <- matrix(data = t(mSpRegP), nlambda1, M)
       if (!is.null(mZ)) {
         path <- t(mRegP)
       }
@@ -599,7 +639,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
         )
       }
       for (k in 1:length(lambda2)) {
-        sp.path[,k,] <- matrix(data = mSpRegP[,k,], nlambda, M)
+        sp.path[,k,] <- matrix(data = mSpRegP[,k,], nlambda1, M)
         if (!is.null(mZ)) {
           path[,k,] <- mRegP[,k,]
         }
@@ -630,7 +670,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
     dof.out <- f2s_dof(W                = X.std, 
                        y                = y.std,
                        coeff            = ret$coef.path, 
-                       lambda           = lambda, 
+                       lambda1          = lambda1, 
                        lambda2          = lambda2, 
                        diff_order       = diff_order, 
                        adaptive_weights = weights_adaptive,
@@ -649,7 +689,7 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
                            y                = y.std,
                            coeff_W          = ret$sp.coef.path, 
                            coeff_Z          = ret$coef.path, 
-                           lambda           = lambda, 
+                           lambda1          = lambda1, 
                            lambda2          = lambda2, 
                            diff_order       = diff_order,
                            adaptive_weights = weights_adaptive,
@@ -666,7 +706,20 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # compute the BIC
-  bic     <- dim(X.std)[1] * log(ret$mse) + dof.out$dof * log(dim(X.std)[1]) 
+  bic <- dim(X.std)[1] * log(ret$mse) + dof.out$dof * log(dim(X.std)[1]) 
+  if (is.null(lambda2)) {
+    bic.min.pos     <- which.min(bic)
+    bic.min         <- min(bic,  na.rm = TRUE)
+    lambda1.min.bic <- lambda1[bic.min.pos]
+  } else {
+    bic.min     <- min(bic, na.rm = TRUE)
+    bic.min.pos <- as.numeric(arrayInd(
+      which.min(replace(bic, is.na(bic), Inf)), dim(bic)
+      )
+    )
+    lambda1.min.bic <- lambda1[bic.min.pos[1]]
+    lambda2.min.bic <- lambda2[bic.min.pos[2]]
+  }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Print to screen
@@ -690,14 +743,17 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
                  "dof.coef_active",
                  "dof.vars_active",
                  "bic",
-                 "lambda.min",
-                 "lambda",
+                 "lambda1.min.bic",
+                 "lambda2.min.bic",
+                 "lambda1",
                  "lambda2",
                  "GRmat",
                  "group_weights",
                  "var_weights",
                  "mse",
                  "min.mse",
+                 "lambda1.min.mse",
+                 "lambda2.min.mse",
                  "convergence",
                  "elapsedTime",
                  "iternum",
@@ -722,8 +778,19 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
   res$dof.coef_active   <- dof.out$coeff_active
   res$dof.vars_active   <- dof.out$vars_active
   res$bic               <- bic
-  res$lambda.min        <- c(ret$lambda.min, ret$lambda2.min)
-  res$lambda            <- lambda
+  res$lambda1.min.bic   <- lambda1.min.bic
+  if (!is.null(lambda2)) {
+    res$lambda2.min.bic <- lambda2.min.bic
+  } else {
+    res$lambda2.min.bic <- NULL
+  }
+  res$lambda1.min.mse   <- ret$lambda.min
+  if (!is.null(lambda2)) {
+    res$lambda2.min.mse <- ret$lambda2.min
+  } else {
+    res$lambda2.min.mse <- NULL
+  }
+  res$lambda1           <- lambda1
   res$lambda2           <- lambda2
   res$GRmat             <- GRmat
   res$group_weights     <- group_weights
@@ -748,15 +815,19 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #' Cross-validation for Overlap Group Least Absolute Shrinkage and Selection Operator on scalar-on-function regression model
 #'
 #' Overlap Group-LASSO for scalar-on-function regression model solves the following optimization problem
-#' \deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2}
+#' \deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda_1 \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2+\lambda_2\Vert D\psi\Vert_2^2}
 #' to obtain a sparse coefficient vector \eqn{\psi\in\mathbb{R}^{M}} for the functional penalized predictor \eqn{x(t)} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q} for the unpenalized scalar predictors \eqn{z_1,\dots,z_q}. The regression function is \eqn{\psi(t)=\varphi(t)^\intercal\psi}
 #' where \eqn{\varphi(t)} is a B-spline basis of order \eqn{d} and dimension \eqn{M}. 
 #' For each group \eqn{g}, each row of the matrix \eqn{S_g\in\mathbb{R}^{d\times M}} has non-zero entries only for those bases belonging 
 #' to that group. These values are provided by the arguments \code{groups} and \code{group_weights} (see below). 
 #' Each basis function belongs to more than one group. The diagonal matrix \eqn{T\in\mathbb{R}^{M\times M}} contains 
 #' the basis specific weights. These values are provided by the argument \code{var_weights} (see below).
-#' The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization 
-#' parameter \eqn{\lambda} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
+#' The matrix \eqn{D} is a discrete difference matrix whose order is specified
+#' by the argument \code{diff_order}, which must be greater than or equal to one.
+#' The penalty \eqn{\lambda_2 \lVert D\psi\rVert_2^2} controls the smoothness
+#' of the estimated coefficient function.
+#' The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization
+#' parameter \eqn{\lambda1} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
 #' for details on the ADMM method.
 #'  
 #' @param vY a length-\eqn{n} vector of observations of the scalar response variable.
@@ -768,14 +839,14 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #' each entry is the reciprocal of the number of groups including that basis. See Bernardi et al. (2022) for details.
 #' @param standardize.data logical. Should data be standardized?
 #' @param splOrd the order \eqn{d} of the spline basis.
-#' @param diff_order order of the discrete difference operator used in the smoothness penalty.
-#' The default is 1.
-#' @param lambda either a regularization parameter or a vector of regularization parameters.
+#' @param diff_order a positive integer specifying the order of the discrete
+#' difference operator used in the smoothness penalty. The default is 1.
+#' @param lambda1 either a regularization parameter or a vector of regularization parameters.
 #' @param lambda2 either a non-negative smoothing regularization parameter or a vector of
 #' smoothing regularization parameters. If \code{NULL}, no smoothness penalty is used.
-#' In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.
-#' @param lambda.min.ratio smallest value for lambda, as a fraction of the maximum lambda value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01. 
-#' @param nlambda the number of lambda values - default is 30.
+#' In this latter case the routine computes the whole path. If it is NULL values for \code{lambda1} are provided by the routine.
+#' @param lambda1.min.ratio smallest value for \code{lambda1}, as a fraction of the maximum \code{lambda1} value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01. 
+#' @param nlambda1 the number of \code{lambda1} values - default is 30.
 #' @param intercept logical. If it is TRUE, a column of ones is added to the design matrix. 
 #' @param overall.group logical. If it is TRUE, an overall group including all penalized covariates is added.
 #' @param cv.fold the number of folds - default is 5.
@@ -786,10 +857,12 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #' \item{sp.fun}{a length-\eqn{r} vector providing the estimated functional coefficient for \eqn{\psi(t)} corresponding to the minimum cross-validated MSE.}
 #' \item{coefficients}{a length-\eqn{q} solution vector for the parameters \eqn{\gamma}, which corresponds to the minimum cross-validated MSE.
 #' It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.} 
-#' \item{lambda}{sequence of lambda.}
-#' \item{lambda.min}{value of lambda that attains the minimum cross-validated MSE.}
+#' \item{lambda1}{sequence of regularization parameters \code{lambda1}.}
+#' \item{lambda2}{sequence of smoothing regularization parameters \code{lambda2}. It is \code{NULL} when no smoothness penalty is used.}
 #' \item{mse}{cross-validated mean squared error.}
 #' \item{min.mse}{minimum value of the cross-validated MSE for the sequence of lambda.}
+#' \item{lambda1.min.mse}{value of \code{lambda1} that attains the minimum in-sample MSE.}
+#' \item{lambda2.min.mse}{value of \code{lambda2} that attains the minimum in-sample MSE.}
 #' \item{convergence}{logical. 1 denotes achieved convergence.}
 #' \item{elapsedTime}{elapsed time in seconds.}
 #' \item{iternum}{number of iterations.}
@@ -819,15 +892,14 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #' 
 #' beta_basis <- splines::bs(s, df = p, intercept = TRUE)    # basis
 #' coef_data  <- matrix(rnorm(n*floor(p/2)), n, floor(p/2))        
-#' fun_data   <- coef_data %*% t(splines::bs(s, df = floor(p/2), intercept = TRUE))     
+#' fun_data   <- coef_data %*% t(splines::bs(s, 
+#'                   df = floor(p/2), intercept = TRUE))     
 #' 
 #' x_0   <- apply(matrix(rnorm(p, sd=1),p,1), 1, fdaSP::softhresh, 1)  
 #' x_fun <- beta_basis %*% x_0                
 #' 
 #' b     <- fun_data %*% x_fun + rnorm(n, sd = sqrt(crossprod(fun_data %*% x_fun ))/10)
 #' l     <- 10^seq(2, -4, length.out = 30)
-#' maxit <- 1000
-#' 
 #' 
 #' ## set the hyper-parameters
 #' maxit          <- 1000
@@ -838,8 +910,10 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #' 
 #' ## run cross-validation
 #' mod_cv <- f2sSP_cv(vY = b, mX = fun_data, M = p,
-#'                    group_weights = NULL, var_weights = NULL, standardize.data = FALSE, splOrd = 4,
-#'                    lambda = NULL, lambda.min = 1e-5, nlambda = 30, cv.fold = 5, intercept = FALSE, 
+#'                    group_weights = NULL, var_weights = NULL, 
+#'                    standardize.data = FALSE, splOrd = 4,
+#'                    lambda1 = NULL, lambda1.min.ratio = 1e-5, 
+#'                    nlambda1 = 30, cv.fold = 5, intercept = FALSE, 
 #'                    control = list("abstol" = abstol, 
 #'                                   "reltol" = reltol, 
 #'                                   "adaptation" = rho_adaptation,
@@ -847,33 +921,44 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #'                                   "print.out" = FALSE))
 #'                                           
 #' ### graphical presentation
-#' plot(log(mod_cv$lambda), mod_cv$mse, type = "l", col = "blue", lwd = 2, bty = "n", 
-#'      xlab = latex2exp::TeX("$\\log(\\lambda)$"), ylab = "Prediction Error", 
-#'      ylim = range(mod_cv$mse - mod_cv$mse.sd, mod_cv$mse + mod_cv$mse.sd),
+#' plot(log(mod_cv$lambda1), mod_cv$mse, type = "l", 
+#'      col = "blue", lwd = 2, bty = "n", 
+#'      xlab = latex2exp::TeX("$\\log(\\lambda_1)$"), 
+#'      ylab = "Prediction Error", 
+#'      ylim = range(mod_cv$mse - mod_cv$mse.sd, 
+#'      mod_cv$mse + mod_cv$mse.sd),
 #'      main = "Cross-validated Prediction Error")
-#' fdaSP::confband(xV = log(mod_cv$lambda), yVmin = mod_cv$mse - mod_cv$mse.sd, 
+#' fdaSP::confband(xV = log(mod_cv$lambda1), 
+#'                 yVmin = mod_cv$mse - mod_cv$mse.sd, 
 #'                 yVmax = mod_cv$mse + mod_cv$mse.sd)       
-#' abline(v = log(mod_cv$lambda[which(mod_cv$lambda == mod_cv$lambda.min)]), 
+#' idx <- which(mod_cv$lambda1 == mod_cv$lambda1.min.mse)
+#' abline(v = log(mod_cv$lambda1[idx]), 
 #'        col = "red", lwd = 1.0)
 #' 
 #' ### comparison with oracle error
 #' mod <- f2sSP(vY = b, mX = fun_data, M = p, 
 #'              group_weights = NULL, var_weights = NULL, 
 #'              standardize.data = FALSE, splOrd = 4,
-#'              lambda = NULL, nlambda = 30, 
-#'              lambda.min = 1e-5, intercept = FALSE,
+#'              lambda1 = NULL, nlambda1 = 30, 
+#'              lambda1.min.ratio = 1e-5, intercept = FALSE,
 #'              control = list("abstol" = abstol, 
 #'                             "reltol" = reltol, 
 #'                             "adaptation" = rho_adaptation, 
 #'                             "rho" = rho, 
 #'                             "print.out" = FALSE))
 #'                                     
-#' err_mod <- apply(mod$sp.coef.path, 1, function(x) sum((x - x_0)^2))
-#' plot(log(mod$lambda), err_mod, type = "l", col = "blue", 
-#'      lwd = 2, xlab = latex2exp::TeX("$\\log(\\lambda)$"), 
-#'      ylab = "Estimation Error", main = "True Estimation Error", bty = "n")
-#' abline(v = log(mod$lambda[which(err_mod == min(err_mod))]), col = "red", lwd = 1.0)
-#' abline(v = log(mod_cv$lambda[which(mod_cv$lambda == mod_cv$lambda.min)]), 
+#' err_mod <- apply(mod$sp.coef.path, 1, 
+#'                  function(x) sum((x - x_0)^2))
+#' plot(log(mod$lambda1), 
+#' err_mod, type = "l", col = "blue", 
+#'      lwd = 2, 
+#'      xlab = latex2exp::TeX("$\\log(\\lambda_1)$"), 
+#'      ylab = "Estimation Error", 
+#'      main = "True Estimation Error", bty = "n")
+#' abline(v = log(mod$lambda1[which(err_mod == min(err_mod))]), 
+#'        col = "red", lwd = 1.0)
+#' idx <- which(mod_cv$lambda1 == mod_cv$lambda1.min.mse)
+#' abline(v = log(mod_cv$lambda1[idx]), 
 #'        col = "red", lwd = 1.0, lty = 2)                                      
 #' 
 #' @references
@@ -885,11 +970,11 @@ f2sSP <- function(vY, mX, mZ = NULL, M,
 #' 
 #' \insertRef{lin_etal.2022}{fdaSP}
 #'
-#' @export
+#' @export 
 f2sSP_cv <- function(vY, mX, mZ = NULL, M,
                      group_weights = NULL, var_weights = NULL, standardize.data = FALSE, 
                      splOrd = 4, diff_order = 1,
-                     lambda = NULL, lambda.min.ratio = NULL, nlambda = NULL, lambda2 = NULL,
+                     lambda1 = NULL, lambda1.min.ratio = NULL, nlambda1 = NULL, lambda2 = NULL,
                      cv.fold = 5, intercept = FALSE, overall.group = FALSE, control = list()) {
     
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -977,7 +1062,7 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
   # Pre-processing: lambda parameter (in case of a single lambda)
   output <- f2s_reg_RIDGE(y = y.std, Z = mZ, X = X.std, 
                           diff_order = diff_order, 
-                          lambda = lambda, lambda2 = lambda2)
+                          lambda = lambda1, lambda2 = lambda2)
   
   # retrieve estimate coefficients in case standardize is TRUE
   if (!is.null(output)) {
@@ -1024,7 +1109,7 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
                    "sp.fun",
                    "mse",
                    "min.mse",
-                   "lambda",
+                   "lambda1",
                    "lambda2") 
     res        <- vector(mode = "list", length = length(res.names))
     names(res) <- res.names
@@ -1033,7 +1118,7 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
     } 
     res$sp.coefficients   <- t(mSpRegP)
     res$sp.fun            <- t(sp.fun)
-    res$lambda            <- lambda
+    res$lambda1           <- lambda1
     res$lambda2           <- lambda2
     res$mse               <- output$mse
     res$min.mse           <- output$min.mse
@@ -1136,22 +1221,22 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
 
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Get the sequence of lambda
-  if (!is.null(nlambda) && is.null(lambda)) {
+  if (!is.null(nlambda1) && is.null(lambda1)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
-                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = nlambda)$lambda.seq
+    lambda1 <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
+                                     GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                     lambda.min.ratio = lambda1.min.ratio, maxl = nlambda1)$lambda.seq
   }
-  if (is.null(nlambda) && is.null(lambda)) {
+  if (is.null(nlambda1) && is.null(lambda1)) {
     # get the smallest value of such that the regression 
     # coefficients estimated by the lasso are all equal to zero
-    lambda <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
-                                    GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
-                                    lambda.min.ratio = lambda.min.ratio, maxl = 30)$lambda.seq
+    lambda1 <- lm_lambdamax_OVGLASSO(y = y.std, X = X.std, mZ,
+                                     GRmat = GRmat, group_weights = group_weights, var_weights = var_weights, 
+                                     lambda.min.ratio = lambda1.min.ratio, maxl = 30)$lambda.seq
   }
-  if (!is.null(lambda)) {
-    nlambda <- length(lambda)
+  if (!is.null(lambda1)) {
+    nlambda1 <- length(lambda1)
   }
 
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1160,10 +1245,10 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
   
   # store Lasso regression for each fold
   if (!is.null(lambda2)) {
-    aMse_cv <- array(data = 0.0, dim = c(cv.fold, nlambda, length(lambda2)))
+    aMse_cv <- array(data = 0.0, dim = c(cv.fold, nlambda1, length(lambda2)))
   } else {
-    #aMse_cv <- matrix(data = 0.0, dim = c(cv.fold, nlambda))
-    aMse_cv <- matrix(data = 0.0, nrow = cv.fold, ncol = nlambda)
+    #aMse_cv <- matrix(data = 0.0, dim = c(cv.fold, nlambda1))
+    aMse_cv <- matrix(data = 0.0, nrow = cv.fold, ncol = nlambda1)
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1181,11 +1266,11 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
       # check for that diff_order and lambda2 are not NULL
       if ((is.null(diff_order)) || (is.null(lambda2))) {
         ret <- .admm_ovglasso_fast(A = mX_, b = vY_, groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                                   lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
+                                   lambda = lambda1, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
                                    reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       } else {
         ret <- .admm_ovglasso_smo_fast(A = mX_, b = vY_, groups = GRmat, group_weights = group_weights, var_weights = var_weights,
-                                       lambda = lambda, lambda2 = lambda2, diff_order = diff_order, 
+                                       lambda = lambda1, lambda2 = lambda2, diff_order = diff_order, 
                                        rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
                                        reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       }
@@ -1210,12 +1295,12 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
       if ((is.null(diff_order)) || (is.null(lambda2))) {
         ret <- .admm_ovglasso_cov_fast(W = mX_, Z = mZ_, y = vY_, groups = GRmat, 
                                        group_weights = group_weights, var_weights = var_weights,
-                                       lambda = lambda, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
+                                       lambda = lambda1, rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
                                        reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       } else {
         ret <- .admm_ovglasso_cov_smo_fast(W = mX_, Z = mZ_, y = vY_, groups = GRmat, 
                                            group_weights = group_weights, var_weights = var_weights,
-                                           lambda = lambda, lambda2 = lambda2, diff_order = diff_order, 
+                                           lambda = lambda1, lambda2 = lambda2, diff_order = diff_order, 
                                            rho_adaptation = adaptation, rho = rho, tau = tau.ada, mu = mu.ada,
                                            reltol = reltol, abstol = abstol, maxiter = maxit, ping = 0)
       }
@@ -1272,12 +1357,12 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
   if (length(dim(mSpRegP_)) == 2) {
     min.mse      <- min(mMse)
     indi.min.mse <- which(mMse == min.mse) 
-    lambda.min   <- lambda[indi.min.mse]
+    lambda.min   <- lambda1[indi.min.mse]
   } else {
     min.mse      <- min(mMse)
     indi.min.mse <- which(mMse == min.mse, arr.ind = TRUE)[1,, drop = FALSE]
-    lambda.grid  <- expand.grid(lambda = lambda, lambda2 = lambda2)
-    lambda.min   <- c(lambda[indi.min.mse[1]], lambda2[indi.min.mse[2]])
+    lambda.grid  <- expand.grid(lambda1 = lambda1, lambda2 = lambda2)
+    lambda.min   <- c(lambda1[indi.min.mse[1]], lambda2[indi.min.mse[2]])
   }
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1379,10 +1464,10 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
                  "mse",
                  "mse.sd",
                  "min.mse",
-                 "lambda",
+                 "lambda1.min.mse",
+                 "lambda2.min.mse",
+                 "lambda1",
                  "lambda2",
-                 "lambda.min",
-                 "lambda2.min",
                  "convergence",
                  "elapsedTime",
                  "iternum",
@@ -1397,19 +1482,18 @@ f2sSP_cv <- function(vY, mX, mZ = NULL, M,
   if (!is.null(mZ)) {
     ret$coefficients <- t(vRegP)
   }
-  ret$sp.fun       <- t(sp.fun)
-  ret$mse          <- mMse
-  ret$mse.sd       <- mSd
-  ret$min.mse      <- min.mse
-  ret$lambda       <- lambda
-  ret$lambda2      <- lambda2
-  ret$lambda.min   <- lambda.min[1]
-  #ret$lambda2.min  <- lambda.min[2]
-  ret$lambda2.min  <- if (!is.null(lambda2)) lambda.min[2] else NULL
-  ret$convergence  <- dConv
-  ret$elapsedTime  <- eltime
-  ret$iternum      <- nIterN
-  ret$indi.min.mse <- indi.min.mse
+  ret$sp.fun          <- t(sp.fun)
+  ret$mse             <- mMse
+  ret$mse.sd          <- mSd
+  ret$min.mse         <- min.mse
+  ret$lambda1.min.mse <- lambda.min[1]
+  ret$lambda2.min.mse <- if (!is.null(lambda2)) lambda.min[2] else NULL
+  ret$lambda1         <- lambda1
+  ret$lambda2         <- lambda2
+  ret$convergence     <- dConv
+  ret$elapsedTime     <- eltime
+  ret$iternum         <- nIterN
+  ret$indi.min.mse    <- indi.min.mse
 
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Return output

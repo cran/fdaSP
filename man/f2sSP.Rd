@@ -15,10 +15,10 @@ f2sSP(
   standardize.data = TRUE,
   splOrd = 4,
   diff_order = 1,
-  lambda = NULL,
+  lambda1 = NULL,
   lambda2 = NULL,
-  nlambda = 30,
-  lambda.min.ratio = NULL,
+  nlambda1 = 30,
+  lambda1.min.ratio = NULL,
   intercept = FALSE,
   overall.group = FALSE,
   control = list()
@@ -46,18 +46,18 @@ least squares estimate. This option is ignored (and set to \code{FALSE}) when
 
 \item{splOrd}{the order \eqn{d} of the spline basis.}
 
-\item{diff_order}{order of the discrete difference operator used in the smoothness penalty.
-The default is 1.}
+\item{diff_order}{a positive integer specifying the order of the discrete
+difference operator used in the smoothness penalty. The default is 1.}
 
-\item{lambda}{either a regularization parameter or a vector of regularization parameters.
-In this latter case the routine computes the whole path. If it is NULL values for lambda are provided by the routine.}
+\item{lambda1}{either a regularization parameter or a vector of regularization parameters.
+In this latter case the routine computes the whole path. If it is NULL values for \code{lambda1} are provided by the routine.}
 
 \item{lambda2}{either a non-negative smoothing regularization parameter or a vector of
 smoothing regularization parameters. If \code{NULL}, no smoothness penalty is used.}
 
-\item{nlambda}{the number of lambda values - default is 30.}
+\item{nlambda1}{the number of \code{lambda1} values - default is 30.}
 
-\item{lambda.min.ratio}{smallest value for lambda, as a fraction of the maximum lambda value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.}
+\item{lambda1.min.ratio}{smallest value for \code{lambda1}, as a fraction of the maximum \code{lambda1} value. If \eqn{n>M}, the default is 0.0001, and if \eqn{n<M}, the default is 0.01.}
 
 \item{intercept}{logical. If it is TRUE, a column of ones is added to the design matrix.}
 
@@ -68,23 +68,26 @@ smoothing regularization parameters. If \code{NULL}, no smoothness penalty is us
 \value{
 A named list containing \describe{
 \item{sp.coefficients}{a length-\eqn{M} solution vector for the parameters \eqn{\psi}, which corresponds to the minimum in-sample MSE.}
-\item{sp.coef.path}{an \eqn{(n_\lambda\times M)} matrix of estimated \eqn{\psi} coefficients for each lambda.}
+\item{sp.coef.path}{an \eqn{(n_{\lambda_1}\times M)} matrix of estimated \eqn{\psi} coefficients for each \code{lambda1}.}
 \item{sp.fun}{a length-\eqn{r} vector providing the estimated functional coefficient for \eqn{\psi(t)}.}
-\item{sp.fun.path}{an \eqn{(n_\lambda\times r)} matrix providing the estimated functional coefficients for \eqn{\psi(t)} for each lambda.}
+\item{sp.fun.path}{an \eqn{(n_{\lambda_1}\times r)} matrix providing the estimated functional coefficients for \eqn{\psi(t)} for each \code{lambda1}.}
 \item{coefficients}{a length-\eqn{q} solution vector for the parameters \eqn{\gamma}, which corresponds to the minimum in-sample MSE. 
 It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.}
-\item{coef.path}{an \eqn{(n_\lambda\times q)} matrix of estimated \eqn{\gamma} coefficients for each lambda. 
+\item{coef.path}{an \eqn{(n_{\lambda_1}\times q)} matrix of estimated \eqn{\gamma} coefficients for each \code{lambda1}. 
 It is provided only when either the matrix \eqn{Z} in input is not NULL or the intercept is set to TRUE.}
 \item{dof}{estimated degrees of freedom for each value of the regularization parameter.}
 \item{dof.groups_active}{active groups used in the degrees-of-freedom computation for each value of the regularization parameter.}
 \item{dof.coeff_active}{active coefficient indices used in the degrees-of-freedom computation for each value of the regularization parameter.}
 \item{dof.vars_active}{active basis coefficients used in the degrees-of-freedom computation for each value of the regularization parameter.}
 \item{bic}{Bayesian information criterion computed along the regularization path.}
-\item{lambda.min}{value of lambda that attains the minimum in-sample MSE.}
-\item{lambda}{sequence of lambda.}
-\item{lambda2}{sequence of smoothing regularization parameters. It is \code{NULL} when no smoothness penalty is used.}
+\item{lambda1.min.bic}{optimal value of the \code{lambda1} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
+\item{lambda1.min.bic}{optimal value of the \code{lambda2} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
+\item{lambda1}{sequence of regularization parameters \code{lambda1}.}
+\item{lambda2}{sequence of smoothing regularization parameters \code{lambda2}. It is \code{NULL} when no smoothness penalty is used.}
 \item{mse}{in-sample mean squared error.}
-\item{min.mse}{minimum value of the in-sample MSE for the sequence of lambda.}
+\item{lambda1.min.mse}{value of \code{lambda1} that attains the minimum in-sample MSE.}
+\item{lambda2.min.mse}{value of \code{lambda2} that attains the minimum in-sample MSE.}
+\item{min.mse}{minimum value of the in-sample MSE for the sequence of \code{lambda1}.}
 \item{convergence}{logical. 1 denotes achieved convergence.}
 \item{elapsedTime}{elapsed time in seconds.}
 \item{iternum}{number of iterations.}
@@ -104,15 +107,19 @@ become smaller than \code{eps_pri} and \code{eps_dual}, respectively.
 }
 \description{
 Overlap Group-LASSO for scalar-on-function regression model solves the following optimization problem
-\deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2}
+\deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda_1 \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2+\lambda_2\Vert D\psi\Vert_2^2}
 to obtain a sparse coefficient vector \eqn{\psi\in\mathbb{R}^{M}} for the functional penalized predictor \eqn{x(t)} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q} for the unpenalized scalar predictors \eqn{z_1,\dots,z_q}. The regression function is \eqn{\psi(t)=\varphi(t)^\intercal\psi}
 where \eqn{\varphi(t)} is a B-spline basis of order \eqn{d} and dimension \eqn{M}. For each group \eqn{g}, each row of 
 the matrix \eqn{S_g\in\mathbb{R}^{d\times M}} has non-zero entries only for those bases belonging 
 to that group. These values are provided by the arguments \code{groups} and \code{group_weights} (see below). 
 Each basis function belongs to more than one group. The diagonal matrix \eqn{T\in\mathbb{R}^{M\times M}} contains 
 the basis-specific weights. These values are provided by the argument \code{var_weights} (see below).
-The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization 
-parameter \eqn{\lambda} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
+The matrix \eqn{D} is a discrete difference matrix whose order is specified
+by the argument \code{diff_order}, which must be greater than or equal to one.
+The penalty \eqn{\lambda_2 \lVert D\psi\rVert_2^2} controls the smoothness
+of the estimated coefficient function.
+The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization
+parameter \eqn{\lambda_1} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
 for details on the ADMM method.
 }
 \section{Details}{
@@ -148,8 +155,6 @@ x_fun <- beta_basis \%*\% x_0
 
 b     <- fun_data \%*\% x_fun + rnorm(n, sd = sqrt(crossprod(fun_data \%*\% x_fun ))/10)
 l     <- 10^seq(2, -4, length.out = 30)
-maxit <- 1000
-
 
 ## set the hyper-parameters
 maxit          <- 1000
@@ -158,19 +163,54 @@ rho            <- 1
 reltol         <- 1e-5
 abstol         <- 1e-5
 
-mod <- f2sSP(vY = b, mX = fun_data, M = p,
-             group_weights = NULL, var_weights = NULL, standardize.data = FALSE, splOrd = 4,
-             lambda = NULL, nlambda = 30, lambda.min = NULL, overall.group = FALSE, 
-             control = list("abstol" = abstol, 
-                            "reltol" = reltol, 
-                            "adaptation" = rho_adaptation, 
-                            "rho" = rho, 
-                            "print.out" = FALSE)) 
+# model fit
+mod1 <- f2sSP(vY = b, mX = fun_data, 
+              mZ = NULL, M = 5,
+              group_weights = NULL, 
+              var_weights = NULL, 
+              standardize.data = FALSE, 
+              intercept = FALSE, splOrd = 4,
+              lambda1 = NULL, nlambda1 = 30, 
+              lambda1.min.ratio = NULL, 
+              weights_adaptive = TRUE, 
+              overall.group = FALSE, 
+              control = list("maxit"      = maxit,
+                             "abstol"     = abstol, 
+                             "reltol"     = reltol, 
+                             "adaptation" = rho_adaptation, 
+                             "rho"        = rho, 
+                             "print.out"  = FALSE)) 
 
 # plot coefficiente path
-matplot(log(mod$lambda), mod$sp.coef.path, type = "l", 
-        xlab = latex2exp::TeX("$\\\\log(\\\\lambda)$"), ylab = "", bty = "n", lwd = 1.2)
+matplot(log(mod1$lambda1), mod1$sp.coef.path, type = "l", 
+        xlab = latex2exp::TeX("$\\\\log(\\\\lambda_1)$"), ylab = "", bty = "n", lwd = 1.2)
+        
+ # model fit with smoothing      
+ lam2 <- 10^seq(5, -3, length.out = 20)  # lambda2 sequence 
+ mod2 <- f2sSP(vY = b, mX = fun_data, 
+               mZ = NULL, M = 5,
+               group_weights = NULL, 
+               var_weights   = NULL, 
+               standardize.data = FALSE, 
+               intercept = FALSE, splOrd = 4,
+               lambda1 = NULL, nlambda1 = 30, 
+               lambda1.min.ratio = NULL,
+               lambda2 = lam2, 
+               diff_order = 2,
+               weights_adaptive = TRUE, 
+               overall.group = FALSE, 
+               control = list("maxit"      = maxit,
+                              "abstol"     = abstol, 
+                              "reltol"     = reltol, 
+                              "adaptation" = rho_adaptation, 
+                              "rho"        = rho, 
+                              "print.out"  = FALSE))       
 
+idx <- which(mod2$lambda2 == mod2$lambda2.min.bic)
+matplot(log(mod2$lambda1), mod2$sp.coef.path[, idx,, drop = TRUE], type = "l",
+        xlab = latex2exp::TeX("$\\\\log(\\\\lambda_1)$"), ylab = "",
+        bty = "n", lwd = 1.2)                              
+                                         
 }
 \references{
 \insertRef{bernardi_etal.2022}{fdaSP}
