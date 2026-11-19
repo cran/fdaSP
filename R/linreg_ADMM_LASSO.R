@@ -15,7 +15,7 @@
 #' Least Absolute Shrinkage and Selection Operator
 #'
 #' LASSO, or L1-regularized regression, solves the following optimization problem
-#' \deqn{\textrm{min}_\beta ~ \frac{1}{2}\|y-X\beta-Z\gamma\|_2^2 + \lambda \|T \beta\|_1}
+#' \deqn{\textrm{min}_\beta ~ \frac{1}{2n}\|y-X\beta-Z\gamma\|_2^2 + \lambda \|T \beta\|_1}
 #' to obtain a sparse coefficient vector \eqn{\beta\in\mathbb{R}^p} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q}. The diagonal matrix \eqn{T\in\mathbb{R}^{p\times p}} 
 #' contains the variable-specific weights. When \eqn{T} is equal to the identity matrix the standard LASSO method is performed, otherwise the adaptive 
 #' LASSO method of Zou (2006) is performed. These values are provided by the argument \code{var_weights} (see below).
@@ -363,7 +363,9 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL,
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Compute the degrees of freedom 
   if (adaptive == TRUE) {
-    dof.out <- lm_dof_OVGLASSO(X                = X.std,
+    dof.out <- lm_dof_OVGLASSO(y                = y.std,
+                               adaptive_weights = TRUE,
+                               X                = X.std,
                                Z                = Z,
                                coeff            = sp.path,
                                lambda           = lambda,
@@ -377,7 +379,8 @@ linreg_ADMM_LASSO <- function(X, Z = NULL, y, var_weights = NULL,
                                toler_c          = toler_c,
                                toler_d          = toler_d)
   } else {
-    dof.out <- lm_dof_LASSO(X                = X.std, 
+    dof.out <- lm_dof_LASSO(X                = X.std,
+                            Z                = Z, 
                             coeff            = sp.path, 
                             lambda           = lambda, 
                             var_weights      = var_weights,

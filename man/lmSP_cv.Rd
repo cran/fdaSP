@@ -96,7 +96,7 @@ become smaller than \code{eps_pri} and \code{eps_dual}, respectively.
 }
 \description{
 Sparse Adaptive overlap group-LASSO, or sparse adaptive group \eqn{L_2}-regularized regression, solves the following optimization problem
-\deqn{\textrm{min}_{\beta,\gamma} ~ \frac{1}{2}\|y-X\beta-Z\gamma\|_2^2 + \lambda\Big[(1-\alpha) \sum_{g=1}^G \|S_g T\beta\|_2+\alpha\Vert T_1\beta\Vert_1\Big]}
+\deqn{\textrm{min}_{\beta,\gamma} ~ \frac{1}{2n}\|y-X\beta-Z\gamma\|_2^2 + \lambda\Big[(1-\alpha) \sum_{g=1}^G \|S_g T\beta\|_2+\alpha\Vert T_1\beta\Vert_1\Big]}
 to obtain a sparse coefficient vector \eqn{\beta\in\mathbb{R}^p} for the matrix of penalized predictors \eqn{X} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q} 
 for the matrix of unpenalized predictors \eqn{Z}. For each group \eqn{g}, each row of 
 the matrix \eqn{S_g\in\mathbb{R}^{n_g\times p}} has non-zero entries only for those variables belonging 

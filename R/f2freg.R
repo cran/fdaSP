@@ -329,8 +329,10 @@ f2fSP <- function(mY, mX, L, M, group_weights = NULL, var_weights = NULL, standa
   # sp.fun.path <- t(mTheta) %*% sp.path %*% mH
   # sp.fun.path <- array(data = apply(sp.path, 1, function(x){t(mTheta) %*% x %*% mH}), 
   #                      dim = c(nlambda, p, p))
-  sp.fun.path <- array(data = apply(sp.path, 1, function(x){t(mH) %*% x %*% mTheta}), 
-                       dim = c(nlambda, p, p))
+  sp.fun.path <- array(0.0, dim = c(nlambda, p, p))
+  for (k in seq_len(nlambda)) {
+    sp.fun.path[k, , ] <- t(mH) %*% sp.path[k, , ] %*% mTheta
+  }
   # sp.fun      <- t(mTheta) %*% mSpRegP_ %*% mH
   sp.fun      <- t(mH) %*% mSpRegP_ %*% mTheta
   

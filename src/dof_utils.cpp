@@ -459,7 +459,7 @@ Rcpp::List lm_cov_dof_OVGLASSO_1lambda(const arma::mat& X,
     Pi.submat(0, 0, Aset.n_elem-1, Aset.n_elem-1) = Pi_Aset;
     
     /* compute the matrix B         */
-    B = Q_inv + (double)n * (lambda * Pi_Aset);
+    B = Q_inv + (double)n * (lambda * Pi);
         
     /* compute dof         */
     //dof = trace(inv_sympd(B) * Q_inv);
@@ -604,10 +604,11 @@ Rcpp::List lm_adaptive_dof_OVGLASSO_1lambda(const arma::mat& X,
       // compute the denominator
       Pi_Aset += Smat * Pi_g * Smat.t();
       
-      // compute the derivative of the adaptive part
+      // Differentiate inverse pilot-norm weights: the penalty gradient
+      // uses T_g^2 * beta_g / ||T_g * beta_g||, including coordinate weights.
       arma::vec coeff_LS_g  = coeff_LS.elem(idx);
-      arma::mat Phi_g       = coeff_g * coeff_LS_g.t();
-      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * gnorms(g);
+      arma::mat Phi_g       = w2_g * coeff_LS_g.t();
+      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * norm(w_g, 2);
       Phi_Aset             += Smat * Phi_g * Smat.t();
     }
     
@@ -615,8 +616,8 @@ Rcpp::List lm_adaptive_dof_OVGLASSO_1lambda(const arma::mat& X,
     B = Q_inv + (double)n * lambda * Pi_Aset;
     
     /* compute dof         */
-    //dof = trace(inv_sympd(B) * (Q_inv - lambda * Phi_Aset));
-    dof = trace(inv(B) * (Q_inv - lambda * Phi_Aset));
+    // RSS/(2*n) loss: both penalty terms use n*lambda on this Gram scale.
+    dof = trace(inv(B) * (Q_inv - (double)n * lambda * Phi_Aset));
   } else {
     arma::uvec Aset_G_idx(G, fill::zeros);
     dof = 0.0;
@@ -764,10 +765,11 @@ Rcpp::List lm_cov_adaptive_dof_OVGLASSO_1lamba(const arma::mat& X,
       // compute the denominator
       Pi_Aset += Smat * Pi_g * Smat.t();
       
-      // compute the derivative of the adaptive part
+      // Differentiate inverse pilot-norm weights: the penalty gradient
+      // uses T_g^2 * beta_g / ||T_g * beta_g||, including coordinate weights.
       arma::vec coeff_X_LS_g  = coeff_X_LS.elem(idx);
-      arma::mat Phi_g         = coeff_g * coeff_X_LS_g.t();
-      Phi_g                  /= -std::pow(norm(coeff_X_LS_g, 2), 3) * gnorms(g);
+      arma::mat Phi_g         = w2_g * coeff_X_LS_g.t();
+      Phi_g                  /= -std::pow(norm(coeff_X_LS_g, 2), 3) * norm(w_g, 2);
       Phi_Aset               += Smat * Phi_g * Smat.t();
     }
     
@@ -779,8 +781,8 @@ Rcpp::List lm_cov_adaptive_dof_OVGLASSO_1lamba(const arma::mat& X,
     B = Q_inv + (double)n * (lambda * Pi);
         
     /* compute dof         */
-    //dof = trace(inv_sympd(B) * (Q_inv - lambda * Phi));
-    dof = trace(inv(B) * (Q_inv - lambda * Phi));
+    // RSS/(2*n) loss: both penalty terms use n*lambda on this Gram scale.
+    dof = trace(inv(B) * (Q_inv - (double)n * lambda * Phi));
   } else {
     arma::uvec Aset_G_idx(G, fill::zeros);
     dof = (double)q;
@@ -1535,10 +1537,11 @@ Rcpp::List f2s_adaptive_dof_1lambda(const arma::mat& W,
       // compute the denominator
       Pi_Aset += Smat * Pi_g * Smat.t();
       
-      // compute the derivative of the adaptive part
+      // Differentiate inverse pilot-norm weights: the penalty gradient
+      // uses T_g^2 * beta_g / ||T_g * beta_g||, including coordinate weights.
       arma::vec coeff_LS_g  = coeff_LS.elem(idx);
-      arma::mat Phi_g       = coeff_g * coeff_LS_g.t();
-      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * gnorms(g);
+      arma::mat Phi_g       = w2_g * coeff_LS_g.t();
+      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * norm(w_g, 2);
       Phi_Aset             += Smat * Phi_g * Smat.t();
     }
     
@@ -1546,8 +1549,8 @@ Rcpp::List f2s_adaptive_dof_1lambda(const arma::mat& W,
     B = Q_inv + (double)n * lambda * Pi_Aset;
     
     /* compute dof         */
-    //dof = trace(inv_sympd(B) * (Q_inv - lambda * Phi_Aset));
-    dof = trace(inv(B) * (Q_inv - lambda * Phi_Aset));
+    // RSS/(2*n) loss: both penalty terms use n*lambda on this Gram scale.
+    dof = trace(inv(B) * (Q_inv - (double)n * lambda * Phi_Aset));
   } else {
     arma::uvec Aset_G_idx(G, fill::zeros);
     dof = 0.0;
@@ -1693,10 +1696,11 @@ Rcpp::List f2s_cov_adaptive_dof_1lambda(const arma::mat& W,
       // compute the denominator
       Pi_Aset += Smat * Pi_g * Smat.t();
       
-      // compute the derivative of the adaptive part
+      // Differentiate inverse pilot-norm weights: the penalty gradient
+      // uses T_g^2 * beta_g / ||T_g * beta_g||, including coordinate weights.
       arma::vec coeff_W_LS_g  = coeff_W_LS.elem(idx);
-      arma::mat Phi_g         = coeff_g * coeff_W_LS_g.t();
-      Phi_g                  /= -std::pow(norm(coeff_W_LS_g, 2), 3) * gnorms(g);
+      arma::mat Phi_g         = w2_g * coeff_W_LS_g.t();
+      Phi_g                  /= -std::pow(norm(coeff_W_LS_g, 2), 3) * norm(w_g, 2);
       Phi_Aset               += Smat * Phi_g * Smat.t();
     }
     
@@ -1708,8 +1712,8 @@ Rcpp::List f2s_cov_adaptive_dof_1lambda(const arma::mat& W,
     B = Q_inv + (double)n * (lambda * Pi);
         
     /* compute dof         */
-    //dof = trace(inv_sympd(B) * (Q_inv - lambda * Phi));
-    dof = trace(inv(B) * (Q_inv - lambda * Phi));
+    // RSS/(2*n) loss: both penalty terms use n*lambda on this Gram scale.
+    dof = trace(inv(B) * (Q_inv - (double)n * lambda * Phi));
   } else {
     arma::uvec Aset_G_idx(G, fill::zeros);
     dof = (double)q;
@@ -1858,10 +1862,11 @@ Rcpp::List f2s_smo_adaptive_dof_1lambda(const arma::mat& W,
       // compute the denominator
       Pi_Aset += Smat * Pi_g * Smat.t();
       
-      // compute the derivative of the adaptive part
+      // Differentiate inverse pilot-norm weights: the penalty gradient
+      // uses T_g^2 * beta_g / ||T_g * beta_g||, including coordinate weights.
       arma::vec coeff_LS_g  = coeff_LS.elem(idx);
-      arma::mat Phi_g       = coeff_g * coeff_LS_g.t();
-      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * gnorms(g);
+      arma::mat Phi_g       = w2_g * coeff_LS_g.t();
+      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * norm(w_g, 2);
       Phi_Aset             += Smat * Phi_g * Smat.t();
     }
     
@@ -1869,8 +1874,8 @@ Rcpp::List f2s_smo_adaptive_dof_1lambda(const arma::mat& W,
     B = Q_inv + (double)n * (lambda * Pi_Aset + lambda2 * DTD_Aset);
     
     /* compute dof         */
-    //dof = trace(inv_sympd(B) * (Q_inv - lambda * Phi_Aset));
-    dof = trace(inv(B) * (Q_inv - lambda * Phi_Aset));
+    // RSS/(2*n) loss: both penalty terms use n*lambda on this Gram scale.
+    dof = trace(inv(B) * (Q_inv - (double)n * lambda * Phi_Aset));
   } else {
     arma::uvec Aset_G_idx(G, fill::zeros);
     dof = 0.0;
@@ -2029,10 +2034,11 @@ Rcpp::List f2s_adaptive_cov_smo_dof_1lambda(const arma::mat& W,
       // compute the denominator
       Pi_Aset += Smat * Pi_g * Smat.t();
       
-      // compute the derivative of the adaptive part
+      // Differentiate inverse pilot-norm weights: the penalty gradient
+      // uses T_g^2 * beta_g / ||T_g * beta_g||, including coordinate weights.
       arma::vec coeff_LS_g  = coeff_W_LS.elem(idx);
-      arma::mat Phi_g       = coeff_g * coeff_LS_g.t();
-      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * gnorms(g);
+      arma::mat Phi_g       = w2_g * coeff_LS_g.t();
+      Phi_g                /= -std::pow(norm(coeff_LS_g, 2), 3) * norm(w_g, 2);
       Phi_Aset             += Smat * Phi_g * Smat.t();
     }
     
@@ -2045,8 +2051,8 @@ Rcpp::List f2s_adaptive_cov_smo_dof_1lambda(const arma::mat& W,
     B = Q_inv + (double)n * (lambda * Pi + lambda2 * R);
         
     /* compute dof         */
-    //dof = trace(inv_sympd(B) * (Q_inv - lambda * Phi));
-    dof = trace(inv(B) * (Q_inv - lambda * Phi));
+    // RSS/(2*n) loss: both penalty terms use n*lambda on this Gram scale.
+    dof = trace(inv(B) * (Q_inv - (double)n * lambda * Phi));
   } else {
     arma::uvec Aset_G_idx(G, fill::zeros);
     dof = (double)q;

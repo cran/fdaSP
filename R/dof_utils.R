@@ -46,7 +46,8 @@ lm_dof <- function(y,
   
   # compute DoF
   if (strcmpi(method, "glasso") || strcmpi(method, "ovglasso")) {
-    res <- lm_dof_OVGLASSO(X = X,
+    res <- lm_dof_OVGLASSO(y = y,
+                           X = X,
                            Z = Z,
                            coeff = coeff,
                            lambda = lambda,
@@ -201,7 +202,11 @@ lm_dof_OVGLASSO <- function(y,
   
   # compute LS estimate for adaptive weights
   if (adaptive_weights == TRUE) {
-    coeff_LS <- lm_ols(X = X, y = y)
+    coeff_LS <- if (is.null(Z)) {
+      lm_ols(X = X, y = y)
+    } else {
+      lm_ols_FWL(X = X, Z = Z, y = y)$coeff_X
+    }
   }
   
   # compute the degrees of freedom

@@ -33,7 +33,7 @@ f2sSP(
 
 \item{M}{number of elements of the B-spline basis vector \eqn{\varphi(t)}.}
 
-\item{group_weights}{a vector of length \eqn{G} containing group-specific weights. The default is square root of the group cardinality, see Bernardi et al. (2022).}
+\item{group_weights}{a vector of length \eqn{G} containing group-specific weights. When omitted, weights are one unless adaptive weights are requested.}
 
 \item{var_weights}{a vector of length \eqn{M} containing basis-specific weights. The default is a vector where 
 each entry is the reciprocal of the number of groups including that basis. See Bernardi et al. (2022) for details.}
@@ -81,7 +81,7 @@ It is provided only when either the matrix \eqn{Z} in input is not NULL or the i
 \item{dof.vars_active}{active basis coefficients used in the degrees-of-freedom computation for each value of the regularization parameter.}
 \item{bic}{Bayesian information criterion computed along the regularization path.}
 \item{lambda1.min.bic}{optimal value of the \code{lambda1} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
-\item{lambda1.min.bic}{optimal value of the \code{lambda2} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
+\item{lambda1.min.bic}{optimal value of the \code{lambda1} regularization parameter selected by minimizing the Bayesian Information Criterion (BIC).}
 \item{lambda1}{sequence of regularization parameters \code{lambda1}.}
 \item{lambda2}{sequence of smoothing regularization parameters \code{lambda2}. It is \code{NULL} when no smoothness penalty is used.}
 \item{mse}{in-sample mean squared error.}
@@ -107,7 +107,7 @@ become smaller than \code{eps_pri} and \code{eps_dual}, respectively.
 }
 \description{
 Overlap Group-LASSO for scalar-on-function regression model solves the following optimization problem
-\deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda_1 \sum_{g=1}^{G} \Vert S_{g}T\psi \Vert_2+\lambda_2\Vert D\psi\Vert_2^2}
+\deqn{\textrm{min}_{\psi,\gamma} ~ \frac{1}{2n} \sum_{i=1}^n \left( y_i - \int x_i(t) \psi(t) dt-z_i^\intercal\gamma \right)^2 + \lambda_1 \sum_{g=1}^{G} \nu_g \Vert S_{g}T\psi \Vert_2+\frac{\lambda_2}{2}\Vert D\psi\Vert_2^2}
 to obtain a sparse coefficient vector \eqn{\psi\in\mathbb{R}^{M}} for the functional penalized predictor \eqn{x(t)} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q} for the unpenalized scalar predictors \eqn{z_1,\dots,z_q}. The regression function is \eqn{\psi(t)=\varphi(t)^\intercal\psi}
 where \eqn{\varphi(t)} is a B-spline basis of order \eqn{d} and dimension \eqn{M}. For each group \eqn{g}, each row of 
 the matrix \eqn{S_g\in\mathbb{R}^{d\times M}} has non-zero entries only for those bases belonging 
@@ -116,8 +116,14 @@ Each basis function belongs to more than one group. The diagonal matrix \eqn{T\i
 the basis-specific weights. These values are provided by the argument \code{var_weights} (see below).
 The matrix \eqn{D} is a discrete difference matrix whose order is specified
 by the argument \code{diff_order}, which must be greater than or equal to one.
-The penalty \eqn{\lambda_2 \lVert D\psi\rVert_2^2} controls the smoothness
+The penalty \eqn{(\lambda_2/2) \lVert D\psi\rVert_2^2} controls the smoothness
 of the estimated coefficient function.
+In this objective, \eqn{n} is the number of observations and \eqn{\nu_g} is the
+group weight supplied by \code{group_weights} or computed from the pilot.
+The loss and parameters use the working data after any requested standardization.
+The factor \eqn{1/2} in the smoothing penalty matches the solver; these
+conventions do not change the fitted paths or the meaning of the existing
+\code{lambda1} and \code{lambda2} arguments.
 The regularization path is computed for the overlap group-LASSO penalty at a grid of values for the regularization
 parameter \eqn{\lambda_1} using the alternating direction method of multipliers (ADMM). See Boyd et al. (2011) and Lin et al. (2022) 
 for details on the ADMM method.

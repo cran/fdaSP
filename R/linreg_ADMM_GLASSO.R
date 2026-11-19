@@ -10,7 +10,7 @@
 #' Group Least Absolute Shrinkage and Selection Operator
 #'
 #' Group-LASSO, or Group L2-regularized regression, solves the following optimization problem
-#' \deqn{\textrm{min}_\beta ~ \frac{1}{2}\|y-X\beta-Z\gamma\|_2^2 + \lambda \sum_{g=1}^G \|S_g T\beta\|_2}
+#' \deqn{\textrm{min}_\beta ~ \frac{1}{2n}\|y-X\beta-Z\gamma\|_2^2 + \lambda \sum_{g=1}^G \nu_g \|S_g T\beta\|_2}
 #' to obtain a sparse coefficient vector \eqn{\beta\in\mathbb{R}^p} and a coefficient vector \eqn{\gamma\in\mathbb{R}^q}. For each group, each row of 
 #' the matrix \eqn{S_g\in\mathbb{R}^{n_g\times p}} has non-zero entries only for those variables belonging 
 #' to that group. These values are provided by the arguments \code{groups} and \code{group_weights} (see below). 
@@ -369,7 +369,9 @@ linreg_ADMM_GLASSO <- function(X, Z = NULL, y, groups, group_weights = NULL, var
   
   # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   # Compute the degrees of freedom 
-  dof.out <- lm_dof_OVGLASSO(X                = X.std,
+  dof.out <- lm_dof_OVGLASSO(y                = y.std,
+                             adaptive_weights = FALSE,
+                             X                = X.std,
                              Z                = Z,
                              coeff            = sp.path,
                              lambda           = lambda,
